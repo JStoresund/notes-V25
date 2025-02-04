@@ -248,7 +248,7 @@
   - Also called monoalphabetic substitution ciphers
   - Exampe Caesar cipher and random simple substitution cipher
 
-### Caecar cipher
+### Caesar cipher
 
 - Key: integer $j$
 - For each letter with value $i$ in the alphabet, replace it with $(i+j)\mod n$, where $n$ is size of aplhabet
@@ -568,7 +568,7 @@
   - Three keys $K_1, K_2, K_3$
   - Encryption defined by $C=E(D(E(P, K_1), K_2), K_3)$
   - Secure from meet-in-the-middle attack
-    - If $E has strong pseudo-random properties, so does D=E^{-1}$
+    - If $E$ has strong pseudo-random properties, so does $D=E^{-1}$
 - Standardised options
   - 1999 version of DES specified 3 options
     - Use 3 independent keys (most secure)
@@ -620,3 +620,646 @@
     - DES feistel structure, AES SPN
     - DES bit-based, AES byte-based
     - AES significally faster in both hardware and software
+
+## Modes of operation and random numbers
+
+- Motivation
+  - Block ciphers encrypt single blocks of data separately, which is generally insecure
+  - Modes of operation standardized iwth different security and efficiency
+  - Block ciphers can be used to generate random numbers
+
+### Modes
+
+- Purpose
+  - Modes can be designed to provide confidentiality or authentication or both for data
+  - Some modes can be used to generate pseudorandom numbers
+  - Different modes have different properties
+- Importance of randomized encryption
+  - Dangerous if same text is encrypted to same ciphertext every time
+    - Makes it possible to find patterns
+    - *Randomizing* encryption schemes prevent this
+    - Typically achieved through initialization vector, $IV$, which propagates through the entire ciphertext
+    - $IV$ needs to be unique and/or random
+    - Another way to vary the encryption is to include variable state which updates with each block
+- Efficiency
+  - Many important features of different modes which do not impact security but are important for practical use
+  - Some modes allow parallell processing
+    - Sometimes multiple plaintexts can be encrypted in parallel
+    - Sometimes multiple ciphertexts can be decrypted in parallel
+  - Some modes result in error propagation, where bit error in ciphertext results in multiple bit errors in decrypted plaintext
+- Padding
+  - Some modes require plaintext to consist og one or more complete blocks
+  - Padding mechanism to "fill up" a block (NIST)
+    - Append single bit '1' to data string (regardless of whether the message was already complete)
+    - Pad resulting string by '0' to complete the block
+  - Padding bits can be removed unambiguously, if receiver knows padding mechanism
+  - Alternative to padding is *ciphertext stealing*
+- Notation:
+  - $n$: amount of blocks in message
+  - $P$: plaintext message
+  - $C$: ciphertext
+  - $P_t$: plaintext block number $t, 1\leq t\leq n$
+  - $C_t$: ciphertext block number $t, 1\leq t\leq n$
+  - $K$: key
+  - $IV$: initialization vector
+- NIST standards
+  - 4 modes ECB, CBC, CFB, OFB, CTR
+  - See slides for more info (not sure if relevant)
+- Electronic Code Book (ECB)
+  - Encryption
+    - $C_t = E(P_t, K)$
+  - Decryption
+    - $P_t = D(C_t, K)$
+  - Same key used for each block
+  - Properties
+    - Not randomized
+    - Padding required
+    - Error propagation within blocks
+    - No IV
+    - Parallel encryption/decryption
+  - Encryption with ECB might reveal patterns in plaintext
+- Cipher Block Chaining (CBC)
+  - "Chains" block together
+  - Random $IV$ chosen and sent together with ciphertext blocks
+  - Encryption
+    - $C_t = E(P_t\oplus C_{t-1}, K), C_0 = IV$
+  - Decryption
+    - $P_t = D(C_t, K)\oplus C_{t-1}, C_0 = IV$
+  - Properties
+    - Randomized
+    - Padding required
+    - Error propagates within blocks and into specific bits in next block
+    - $IV$ must be random
+    - Parallel decryption, not encryption
+  - Commonly used for bulk encryption
+- Ciphertext FeedBack (CFB)
+  - Feeds ciphertext block back into enciphering/deciphering process, "chaining" the blocks together
+  - Encryption
+    - $C_t = E(C_{t-1}, K) \oplus P_t, C_0=IV$
+  - Decryption
+    - $P_t = D(C_{t-1}, K)\oplus C_t, C_0=IV$
+  - Propagation of channel errors
+  - One bit error in $C_t$ produces one bit error in $P_t$ and corruption of $P_{t+1}$
+  - Self-synchronizing stream cipher
+    - Keystream depend on previous ciphertexts
+    - Loss in synchronicity for one block if ciphertext block is lost in transmission
+  - Properties
+    - Randomized
+    - Padding not required
+    - Error propagates to specific bits in current block and propagates into next block
+    - $IV$ must be random
+    - Parallel decryption, not encryption
+- Output FeedBack (OFB)
+  - "Feeds" output block back into encryption/decryption process
+  - Synchronous stream cipher, keystream $O_t = E(O_{t-1}, K), O_0=IV$
+  - Encryption
+    - $C_t = O_t\oplus P_t$
+  - Decryption
+    - $P_t = O_t\oplus C_t$
+  - Properties
+    - Randomized
+    - Padding not required
+    - Error propagates from one bit in ciphertext to same bit in decrypted plaintext
+    - $IV$ must be unique
+    - No parallel encryption or decryption
+      - Keystream can be computed in advance
+- Counter (CTR)
+  - Synchronous stream cipher
+  - Keystream generated by encrypting successive values of a counter, using nonce $N$
+  - $O_t = E(T_t, K), T_t = N||t$ (concatenation)
+  - Encryption
+    - $C_t = O_t\oplus P_t$
+  - Decryption
+    - $P_t = O_t\oplus C_t$
+  - Properties
+    - Randomized
+    - Padding not required
+    - Error propagates from one bit in ciphertext to same bit in decrypted plaintext
+    - $IV$: nonce must be unique
+    - Parallel encryption and decryption
+  - Good for access to specific plaintext blocks without having to decrypt the entire thing
+  - Basis for authenticated encryption in TLS 1.2 and 1.3
+
+### Random numbers
+
+- Principles of pseudo-random number generation
+  - Strong randomness is crucial in cryptography
+  - Statistical notions
+    - Uniform distribution: frequency of ones and zeros should be approximately equal
+    - Independence: no output should be predictable given previous output
+- Randomness in cryptography
+  - Truly random numbers used some places, but they have drawbacks like inefficiency
+  - More common with pseudorandom
+  - Most important is that adversary cannot predict future numbers
+  - Algorithmic techniques for random number generation
+    - Deterministic, not statistically random sequence
+- Randomness in general
+  - Any specific string is exactly as random as any other
+  - Therefore we look at distributions
+  - We look at generators of random strings
+    - True random number generator (TRNG) is physical process which outputs each valid string independently with equal probability
+    - Pseudo random number generator (PRNG) is approximately a TRNG
+  - Can use TRNG to provide *seed* for PRNG
+  - NIST privides framework for design and validation of TRNG algorithms called *entropy sources*
+  - Entropy source is physical noise source, with output being any number of bits
+  - *Health test* important to ensure continuing reliable operation
+  - NIST recommends certain PRNG algs named *Deterministic Random Bit Generators* (DRBG) based on:
+    - Hash functions
+    - HMAC (specific type of MAC)
+    - Block ciphers in counter mode
+  - Each generator takes seed as input and outputs bit string updating its state
+  - Seed should be updated after some number of calls
+  - Seed can be obtained from TRNG
+- Functions of DRBGs
+  - NIST defines general model for DRBGs with these functions
+    - Instantiate: sets initial state of DRBG using a seed
+    - Generate: provides output bit string for each request
+    - Reseed: inputs new random seed and updates state
+    - Test: checks correction operation of other functions
+    - Uninstantiate: deletes "zeroises" in state of the DRBG
+- Security of DRBG
+  - Defined in terms of ability for hacker to distinugish reliably between its output and a truly random string
+  - *Backtracking resistance*: attacker who gains access to current state of DRBG should not be able to distinguish between output of earlier calls of DRBG and random strings
+  - *Forward prediction resistance*: attacker who obtains access to current state of DRBG should not be able to distinguish between output of later calls and random strings
+- CTR_DRBG
+  - Uses block cipher in CTR mode
+  - E.g. AES with 128b keys
+  - DRBG initialized with seed with length equal to key length + block length
+    - AES that becomes 128b + 128b = 256b
+  - Key $K$ and counter value $V$ derived form high entropy seed. No separate nonce as in normal CTR mode
+  - Then run counter mode encryption iteratively
+  - Update function
+    - Used to generate new key and state
+    - Used in initialize, generate and reseed function
+    - Input: Current key $K$, state (counter) $V$, optional data input $D$
+    - Output: New key $K'$, new state $V'$
+    - Block and key size same:
+      - Generate ew block $O_1 = E(V, K)$
+      - Increment $V$
+      - Generate new block $O_2 = E(V, K)$
+      - $K'||V' = (O_1||O_2)\oplus D$
+    - Updating provides backtracking resistance
+  - Instantiate
+    - Calls Update function with $D$ equal to high entropy seed, $K=V=0$
+  - Generate
+    - Computes up to $2^{19}$ bits by running CTR mode output from current state
+    - Then call Update with $D=0$
+  - Reseed
+    - Call Update with $D$ equal to high entropy input, $K$ and $V$ in current state
+  - Standard says Generate can be called up to $2^{48}$ times before Reseed must be called
+  - Each Reseed call provides forward prediction resistance and backtracking resistance
+- Dual_EC_DRBG
+  - Older standard
+  - Based on elliptic curve discrete logarithm problem
+  - Much slower than DRBG in the standard
+- Cloudflare
+  - Company in San Francisco
+  - Provide
+    - CDN services
+    - Cloud cybersecurity
+    - DDoS mitigation
+  - Used by more than 20\% of the internet
+- How to generate randomness
+  - CryptographicallySecure PseudoRandom Number Generators (CSPRNGs) are algs which produce larger stream of unpredictable data from smaller unpredictable input
+  - Need unpredictable input
+- Lavarand (fun alternate RNG generator)
+
+## Hash functions, MACs and authenticated encryption
+
+### Hash functions
+
+- Public function $H$ such that
+  - $H$ is simple and fast to compute
+  - $H$ takes an input $M$ pf arbitrary length and outputs message digest $H(M)$ of fixed length
+- Security properties
+  - Collision resistant: Should be infeasible to find $x_1$ and $x_2$ such that $H(x_1) = H(x_2)$
+  - One-way: Should be impossible to find $x$ such that $H(x) = y$ given $y$
+  - Second-preimage resistant: Given value $x_1$, it should be infeasible to find $x_2$ such that $H(x_1) = H(x_2)$
+    - Breaking second-preimage restistance implies breaking collision resistance
+- Remember birthday paradox
+  - In general, if we choose around $\sqrt{M}$ values from a set of size $M$, the probability of getting two of the same value is around 0.5
+  - Suppose hash function has output size $k$ bits, and $H$ is regarded as random, $2^{k/2}$ trials are enough to find collision
+  - Today, $2^{128}$ trials is considered infeasible. As such, hash function outputs should be at least 256 bits
+- Iterated hash functions
+  - Splits input into blocks of fixed size and operates each block sequentially using same function with fixed size inputs
+  - Merkle-Damgård construction: use fixed-size compression function applied to multiple blocks of the message
+  - Compression function $h$
+    - Takes 2 input strings $x_1, x_2$ and outputs string $y$ of length $n$ bits
+  - ![alt text](image-11.png)
+  - If conpression function $h$ is collision-resistant, then hash function $H$ is collision resistant
+  - Security weakness
+    - Length-extension attack: once one collision is found, it is easy to find more
+    - Second-preimage not as hard as it should be
+  - Many standards are Markle-Damgård constructions
+- Standarized hash functions
+  - MDx family
+    - Deployed members were MD2, MD4, MD5
+    - All have 128 bit output
+    - All broken
+  - SHA-0 and SHA-1
+    - Based on MDx but larger output and more complex
+    - SHA = Secura Hash Algorithm
+    - Both have 160 bit output
+    - SHA-0 broken
+    - Sha-1 fisrt collision found in 2017
+  - SHA-2 family
+    - Several members
+    - Developed in response to attack on MD5 and SHA-1
+    - ![alt text](image-12.png)
+    - Padding in SHA-2 family
+      - Message length field is
+        - 64b if block length=512b
+        - 128b when block length=1024b
+      - Always at least one padding
+        - First a "1", then "0" until complete block
+  - SHA-3
+    - Does not use Merkle-Damgård, but *sponge* contruction
+      - Input padded and broken down into block or $r$ bits
+      - The $b$ bits of the state are initialized to 0, and sponge function proceeds
+        - Absorption phase: input blocks XORd into $r$ first bit of state, and function $f$ applied iteratively
+        - Squeezing phase: first $r$ bits of state returned as output blocks, interleaved applying function $f$
+          - Number of output blocks chosen by user
+          - Last $c$ bits of state never directly affected by input blocks and never output during squeezing phase
+        - Since input/output sizes can be arbitrarily long, sponge construction can be used to build various primitived
+      - Keccak function: ![alt text](image-13.png)
+- Usecases of hash functions
+  - NOT encryption
+  - Can authenticate message by authenticating hash
+  - Building block for Message Authentication Codes (MACs)
+  - Building block for signatures
+  - Hash functions and keys
+    - Sometimes we write hash functions as taking key $s$ as input
+    - $H^s(x) = H(s, x)$
+    - Must be hard to find collision for randomly generated key $s$
+    - Key is **not** kept secret. Need collision resistance even when adversary knows $s$
+      - Hence $H^s$, and not $H_s$
+  - Storing passwords for login
+    - Usual to store passwords on servers using hash functions
+    - Store salted hashes of passwords, using random $salt$, computing $h = H(pw, salt)$, store $(salt, h)$
+
+### Message authentication codes (MACs)
+
+- Goal is to enable *secure communication*
+- So far covered secrecy
+- But we also need integrity
+- We need to ensure messages are not altered during transmission
+- Flipping certain bits in ciphertext results in flipping certain bits in plaintext
+  - If adversary has partial information about plaintext, then can predict with some accuracy what the changes are
+    - Even OTP vulnerable to this
+    - Does not mean encryption scheme is not secure
+  - Adversary can randomly change ciphertext to ruin underlying message
+- MACs are cryptographic mechanism used for message integrity and authentication
+- Inputs secret key $K$ and message $M$ and outputs fixed-length tag $T$ using $MAC$ function
+  - $T = MAC(M, K)$
+- $MAC$ is symmetric key algorithm
+- Sender sends $(M, T)$ pair, but $M$ may or may not be encrypted
+- Recipient recomputes tag $T' = MAC(M', K)$ and checks that $T' = T$
+- Mac properties
+  - Unforgeability
+  - Infeasible to produce $M$ and $T$ without knowledge of $K$
+- More complete notion of security is unforgeability under chosen message attack
+  - Attacker can get tag $T$ of any message $M$ of their choosing
+  - Not feasible for attacker to produce valid $(M, T)$ pair that was not already computed before
+- Not a signature scheme, but kind of a symmetric version of signature scheme. Only authorized entities can authenticate message
+- MAC from hash function (HMAC)
+  - Let $H$ be any iterated cryptographic hash function
+  - Now define $HMAC(M, K) = H((K\oplus opad) || H((K\oplus ipad) || M))$
+  - Definitions:
+    - $M$: message
+    - $K$: key padded with 0s to be block size of $H$
+    - $opad$: fixed string $0x5c5c\dots 5c$
+    - $ipad$: fixed string $0x3636\dots 36$
+  - Security of HMAC
+    - Secure (unforgeable) is $H$ is collision resistant or if $H$ is pseudorandom function
+    - Designed to resist length extention attacks (even if $H$ is Merkle-Damgård hash function)
+    - HMAC often used as pseudorandom function for deriving keys in cryptographic protocols
+
+### Authenticated encryption
+
+- Suppose Alice and Bob have shared key $K$
+- She wants to send with both confidentiality and authentication/integrity
+- Two options
+  - Split key into two parts, using the first part to encrypt, and use second half with MAC to provide auth and integrity
+  - Use dedicated algorithm which procides both properties (authenticated encryption)
+- Combining encryption and auth
+  - 3 ways
+    - Encrypt and MAC ($C || T$, tag of $M$)
+      - Integrity only on plaintext, which is bad
+      - May not achieve basaic levels of secrecy
+      - Even strongly secure MAC does not guarantee anything about secrecy
+      - MAC may leak info about $m$ in the tag $t$
+    - MAC then encrypt (Encrypt $M || T$)
+      - Only plaintext integrity, but now MAC is encrypted
+      - We pad message with tag, which can lead to errors in decryption
+        - Padding may be incorrect
+        - Tag may not verify
+      - Attacker can distinguish between failures and get information
+      - Attack has been carried out against some TLS configurations
+    - Encrypt then MAC ($C || T$, tag of $C$)
+  - Encrypt then MAC is safest approach
+  - Note that separate keys are used in encryption and MAC
+  - Authenticated Encryption with Associated Data (AEAD)
+    - Symmetric key cryptosystem
+    - Input: message $M$, assosiated data $A$, shared key $K$
+    - Output: $O$, which may contain different elements like ciphertext and tag
+    - Sender send $O$ and $A$ to recipient
+    - Receiver gets either $M$ or $A$ or reports failure
+    - AEAD should provide
+      - Confidentiality for $M$
+      - Auth for both $M$ and $A$
+- Galois Counter Mode (GCM)
+  - Block cipher mode providing AEAD
+  - Most commonly used in web-based TLS
+  - Combines CTR mode on block cipher (typically AES) with special keyed hash function GHASH
+  - GCM using AES can be faster than AES with HMAC due to HW support
+  - Algorithm
+    - GHASH uses multiplication in finite field $GF(2^{128})$
+      - Generates polynomial $x^{128}+x^7+x^2+1$
+    - Input: plaintext $P$, authenticated data $A$, nonce $N$
+    - Values $u$ and $v$ are minimum number of 0s required to expand $A$ and $C$ to complete blocks
+    - Output: Ciphertext $C$ and tag $T$. Length of $A (len_a)$ and $C (len_C)$ are 64b values
+    - In TLS, $len_T=128$b, and $len_N=96$b. Initial block input in CTR mode of $E$ is $J_0 = N || 0^{31} || 1$
+    - Function $inc_{32}$ increments right-most 32 bits of input stirng by 1 modulo $2^{32}$
+    - GCM: ![alt text](image-14.png)
+    - GHASH: ![alt text](image-15.png)
+      - Outputs $Y_m = GHASH_{HK}(X_1, \dots, X_m)$
+      - Operation $\bullet$ is multiplication in finite field $GF(2^{128})$
+      - $KH = E(0^{128}, K)$ is hash subkey
+  - Decryption
+    - Input: ciphertext $C$, tag $T$, authenticated data $A$
+    - Receiver knows key $K$ that is used to compute $T$. User can compare computed tag with received tag to check validity of data
+    - If tag is correct plaintext can be computed by generating same key stream from CTR mode as is used for encryption
+
+### Passwords and hashing
+
+- Need high-entropy secrets
+- Humans can only memorize low-entropy passwords
+- Uses of passwords
+  - Login
+  - Key derivation (e.g. disk encryption)
+- Dictionary attacks against passwords
+  - Attack knows dictionary of most used passwords
+  - Iterate through dictionary from most frequent to least
+- Storing login passwords
+  - Bad idea to store plaintext
+  - Store password encryption using secret key
+    - Where to store key?
+  - Store hashes of passwords: $h = H(pw)$
+    - Good because hard to recover password from hash, assuming $H$ is preimage resistant
+    - Bad if attacker can store dictionary of $pw, H(pw)$ and compare with stolen $h$
+  - Store salted hashes of password with random $salt$
+    - Now attacker needs new dictionary for each $salt$
+    - Still does not slow down per-password attacks
+
+## Number theory for public key cryptography
+
+- Need efficient way to generate large prime numbers
+- Also need hard copmutational problems
+
+### Chinese remainder theorem (CRT)
+
+- Let $d_1, \dots, d_r$ be pairwise relatively prime
+- Let $n=d_1d_2\dots d_r$
+- Given any integers $c_i$ there exists a unique integer $x$ such that
+  - $x \equiv c_1 (\mod d_1)$
+    $x \equiv c_2 (\mod d_2)$
+    $\dots$
+    $x \equiv c_r (\mod d_r)$
+- $x \equiv \sum_i (\frac{n}{d_i})y_i c_i (\mod n)$, where $y_i \equiv (\frac{n}{d_i})^{-1} (\mod d_i)$
+- In words, we want an integer $x$ which satisifies a list of modular equivalents
+- See slide 8 for example
+
+### Euler $\phi$ function
+
+- Definition: $\phi(n)$ is the amount of numbers lower than $n$ which are relatevely prime to $n$
+  - $\phi(n)$ gives size of $\Z_n^*$
+- If $n$ is prime, $\phi(n) = n-1$
+- $\phi(pq) = (p-1)(q-1)$ if $p$ and $q$ are distinct primes
+- If $n=p_1^{k_1}\cdot p_2^{k_2}\cdot ... \cdot p_t^{k_t}, \phi(n) = \Pi_{i=1}^t p_i^{k_i-1}(p_i-1)$
+- Two theorems
+  - Fermat
+    - If $p$ is prime, $a^{p-1}\mod p = 1$, given $a<p-1$
+  - Euler
+    - $a^{\phi(n)}\mod n = 1$
+    - Note that Fermat is a subclass of Euler
+
+### Testing for primality
+
+- Testing by division is not practical for larger numbers
+- A number of fast method are probabilistic
+  - Require random input and fail in extraordinary cases
+- Deterministic primality test found in 2002
+  - Still probabilistic methods used in practice
+- Fermat test
+  - If we find out $a^{n-1}\mod n\neq 1$ then we know $n$ is not prime
+  - This can fail with some probability
+  - Repeating with different values for $a$ reduces failure probability
+  - Algorithm
+    - Input: value $n$ to test for primality, the number of times to test $k$
+    - Output: $\text{composite}$ if $n$ is composite, otherwise $\text{probably prime}$
+    - Repeat $k$ times:
+      1. Pick random $a<n-1$
+      2. If $a^{n-1}\mod n\neq 1$, return $\text{composite}$
+      3. return $\text{probable prime}$
+  - Effectiveness
+    - If it returns $\text{composite}$, $n$ is 100\% composite
+    - Can return pseudoprime numbers (composite but returns probably prime)
+    - Carmichael numbers output $\text{probable prime}$ every time, despite being composite
+      - A number $n$ that satisfies $b^{n-1}\mod n = 1$ for all integers $b$
+- Miller-Rabin test
+  - Same idea as Fermat test
+  - Can guarantee to detect composites if run sufficiently many times
+  - Most widely used
+  - A modular square root of 1 is a number $x$ with $x^2\mod n = 1$
+  - When $n=pq$, there are 4 square roots of 1
+  - Two of these are $\pm 1$
+  - The other two are non-trivial
+  - If $x$ is a non-trivial square root of 1, then $gcd(x-1, n)$ is a non-trivial factor of $n$
+  - In other words, the existance of a non-trivial square root implies that $n$ is composite
+  - Algorithm
+    - Assume $n$ is odd, and define $u, v$ such that $n-1 = 2^v\cdot u$, where $u$ is odd
+    1. Pick random $a$ in range $(1, n-1)$
+    2. Set $b = a^u\mod n$
+    3. If $b==1$, return $\text{propable prime}$
+    4. For $j=1, \dots, v-1$
+       1. If $b==-1$ return $\text{probable prime}$
+       2. $b = b^2\mod n$
+    5. return $\text{composite}$
+  - Effectiveness
+    - If it returns composite $n$ is definitely composite
+    - If it returns probable prime $n$ may be composite
+    - At most the probability is 1/4 for false positive
+    - Therefore repeat the algorithm $k$ times, making the probability of false positive at most $(1/4)^k$
+    - In practice probability is far smaller
+  - See slides for proof and example
+- Generating large primes
+  1. Choose random odd integer $r$ with same number of bits as required prime
+  2. Test if $r$ is divisible by any of a list of small primes
+  3. Apply Miller-Rabin with 5 random bases
+  4. If $r$ fails test $r+2$ and return to step 2
+  - (Also possible to start over from step 1 to produce more random primes)
+
+### Complexity theory
+
+- Provides foundation for:
+  - Analyzing computational requirements for cryptographic algorithms
+  - Study difficulty of breaking ciphers
+- 2 aspects
+  - *Algorithm complexity*: how long it takes to run an algorithm
+  - *Problem complexity*: best known algorithm to solve particular problem
+- Algorithm complexity
+  - Measured as time and space complexity as functions of input size $m$
+  - Use big O notation
+  - Algorithms with polynomial runtime are known as *efficient* in cryptography
+  - Algorithms with exponential runtime are known as *hard*
+    - Brute-forcing keys is hard
+- Problem complexity
+  - Problems classified according to minmum time and space needed to solve hardest instance of problem pn deterministic computer
+  - Two important problems
+    - **Integer factorization**: Given integer, find its prime factors
+    - **Discrete logarithm problem**: Given prime $p$, integer $y$, base $g$, find $x$ such that $y=g^x\mod p$
+    - Both have solutions slower than polynomial and faster than exponential
+    - Fast algorithms exist using quantum computers
+- Integer factorization
+  - Hopeless for numbers of a few hundred bits
+  - Some special purpose methods exist, if integer to be factorized has certain properties
+  - Best current general method is *number field sieve*
+- Discrete logarithm problem (DLP)
+  - Best known method is a variant of *number field sieve*
+  - DLP can also be defined on elliptic curves
+    - Also exponential algorithm
+
+## Public key cryptography and RSA
+
+- Provides features which cannot be achieved with symmetric key crypto
+- Widely used for key management in e.g. TLS and IPsec
+- RSA is best known public key cryptosystem
+- One-way functions
+  - Functions where it is easy to find $f(x)$ but hard to find $f^{-1}(y)$
+  - Open problem in computer science whether they actually exist
+  - Two (believed) examples:
+    - Multiplication of large primes
+    - Exponentiation
+- Trapdoor one-way functions
+  - Given additional information, it is easy to compute $f^{-1}(y)$
+  - E.g. modular squaring (see slides)
+- Ciphers based on computationally hard problems
+  - E.g. diffie-hellman
+  - Trapdoor one-way functions used to design
+  - Trapdoor becomes decryption key
+
+### Public key cryptography (PKC)
+
+- Encryption key is *public key* which can be known to anyone
+- Decryption key is *private key* which can only be known to owner of key
+- Finding private key from public key must be hard computationally
+- Why?
+  - 2 main advantages
+    - Simple key management
+    - Digital signatures can be obtained
+- Encryption
+  - $C = E(M, PK_A)$
+- Decryption
+  - $M = D(C, SK_A)$
+- Hybrid encryption
+  - PKC is computationally much more expensive than symmetric-key cryptography
+  - Normal to encrypt random key for symmetric algorithm and then use symmetric
+  1. $B$ chooses random encryption key $k$ and finds $A$'s public key $PK_A$ and computes $C_1=E(k,PK_A)
+  2. $B$ computes $C_2 = E_S(M, k)$ where $E_S$ is symmetric algorithm like AES in CTR mode
+  3. $B$ sends $(C_1, C_2)$ to $A$
+
+### RSA
+
+- Keygen
+  - Let $p, q$ be distinct (large) prime numbers
+  - Compute $n=pq$
+  - Select $e$ randomly from $gcd(e, \phi(n))=1$
+  - Compute $d = e^{-1}\mod \phi(n)$
+  - Public key is $(n, e)$
+  - Private key is $(p, q, d)$
+- Encryption
+  - $C = M^e\mod n$
+  - Note that $M$ is a number lower than $n$
+- Decryption
+  - $M = C^d\mod n
+- See slides for correctness proof
+- Implementation issues
+  - Keygen
+    - Choice of $e$
+    - Generating large primes
+  - Encryption and decryption
+    - Fast exponentiation
+    - Using CRT for decryption
+  - Formatting data (padding)
+- Are there enough prime numbers?
+  - Roughly one in 700 1024b numbers are prime
+  - This gives well over $2^{1000}$ primes with size 1024b, which is completely infeasible to break
+- Selecting $e$
+  - Efficient with small value, i.e. 3, but that is bad when encrypting small messages
+  - Pupular to choose $e = 2^{16}+1$
+- As a note, $d$ should at least be $\sqrt(n)$
+  - Can be brute-forced if $d$ is too small
+- Fast exponentiation
+  - Basic idea is *square and multiply*
+  - ![alt text](image-16.png)
+  - Cost
+    - $b-1$ modular multiplications (first one is just $1\cdot m$)
+    - $b$ modular squaring
+    - If $n$ is 2048b, and on average only half of the bits are 1
+    - We can reduce modulo $n$ after every operation
+- Faster decryption with CRT
+  - Compute $M_p = C^{d\mod p-1}\mod p$ and $M_q = C^{d\mod q-1}\mod q$
+  - Solve for $M\mod n$ using CRT
+  - $M = q\cdot (q^{-1}\mod p)\cdot M_p + p\cdot (p^{-1}\mod q)\cdot M_q\mod n$
+  - Why does this work?
+    - Check slides
+  - How much faster is it?
+    - Up to 8 times faster
+- RSA padding
+  - Using RSA directly on messages is weak due to:
+    - Building dictionary of known plaintexts
+    - Guessing plaintext and checking if it decrypts to ciphertext
+    - Håstad's attack
+      - If same message is encrypted without padding to 3 different recipients, and $e=3$
+      - Attacker can use CRT to solve for $m$
+  - Therefore use random padding to improve security
+  - Types of padding
+    - PKCS number 1
+      - Encryption block format is $0x0002PS00D$, where $PS$ is pseudorandom string
+      - $PS$ minimum 8B
+    - Optimal Asymmetric Encryption Padding (OAEP)
+      - Includes $k_0$ bits of randomness and $k_1$ bits of redundancy into message before encryption
+      - Reasonable values for $k_0$ and $k_1$ are 128
+      - 2 random hash function $G$ and $H$ used
+      - ![alt text](image-17.png)
+- Security of RSA
+  - If adversary can factorize $n$ they can easily find private key $d$ and reveal all messages
+  - Breaking RSA not harder than factorization
+  - Not possible to find private key without factorizing modulus
+  - Miller theorem
+    - Determining $d$ from $e and n$ is as hard as factorizing $n$
+  - Miller's algorithm
+    - Determine $u, v$ such that $ed-1=2^vu, u$ is odd
+    - Consider sequence $a^u, a^{2u}, a^{3u}, \dots, a^{2^vu}(\mod n)$
+    - Notice that $a^{2^vu}\equiv a^{ed-1}\equiv a^{ed}a^{-1}\equiv aa^{-1}\equiv 1(\mod n)$
+      - Therefore square root of 1 has to be somewhere in the sequence
+    - With probability of at least 50%, the sequence contains non-trivial square root of 1 modulo $n$, thereby revealing factors of $n$
+    - If not, choose new $a$ and repeat
+  - Quantum computers
+    - Do not yet exist
+    - Shor's algorithm can factorize in polynomial time on quantum computer
+- Side channel attacks
+  - Many different kinds known
+    - Timing attacks
+      - Uses timing of private key operations to obtain information
+      - Recall square-and-multiply
+      - Multiplication step included when bit=1 (takes twice as long as when bit=0)
+    - Power analysis: uses power usage profile in private key operations to obtain information about private key
+    - Fault analysis: measures effect of interfering with private key operations to obtain information
+  - Countermeasures
+    - Run dummy multiplication when bit=0
+    - Montgomery ladder: makes every operation depend on key to avoid some fault attacks
+    - Randomizing RSA message mitigates differential attacks by preventing multiple timings on same operation
+- Practical problems with key generation
+  - Poor RNG
+  - Other problems through the last decades

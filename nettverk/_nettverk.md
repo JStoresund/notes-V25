@@ -114,9 +114,14 @@
       - Contiguous series of cipher blocks set to 0 can be replaced with ::
       - Can only be applied once per IP address to avoid ambiguity
       - E.g. FE80:0:0:0:2AA:FF:FE9A:4CA2 can be compressed to  FE80::2AA:FF:FE9A:4CA2
+  - Link-local unicast start with FE80::\<interface part>
   - Network interface card MAC address
     - Interface MAC address embedded in IPv6 address
       - ![alt text](image.png)
+      - FFFE placed in the middle of MAC address
+      - bit 7 special
+        - =1, means global, =0 means local
+        - If MAC address has bit 7 = 0, it is set to 1 in global network
     - Bad because MAC address should be kept private
 
 ## Internet end-end
@@ -155,3 +160,385 @@
 9. Server returns default page at google.com using HTTP response
 
 - Instanse: email sent from one email client to another
+  - Do research
+
+## Router architecture
+
+- Function, not necessarily router component
+
+### Tunnelling
+
+- Many cases
+- Interconnect IPv6 routers over IPv4 routers
+  - Encapsulate IPv6 packet inside IPv4 packet
+- Virtual Private Network (VPN)
+  - Similar to IPv6 tunnelling, just also putting IPsec inside of IPv6 header
+  - Uses tunnelling protocols and security procedures
+    - Other tunnelling protocols than IPsec
+    - Protocols in different layers
+  - Virtual
+    - Connectivity deployed on shared infrastructure
+    - Reduces cost of separate routers, links, etc.
+  - Private
+    - Network looks private to user with same policies and performance as private network
+    - Possibly encrypted before entering public internet
+  - IPsec VPN is layer 3 protocol which encrypts original IP packet before entering public internet
+    - ![alt text](image-1.png)
+  - Maintains privacy
+  - Secure link over public internet
+  - Site-to-site VPN
+    - Tunnel from VPN gateway to other VPN gateway
+    - No VPN client (client no knowledge of VPN)
+    - Layer 3 protocol
+  - Remote access
+    - SSL VPN tunnell from computer to SSL VPN HQ
+    - SSL is transport layer protocol
+
+### Performance parameter
+
+- Throughput
+  - *Line speed*: maximum amount of data capable of transmitting across communication line
+  - Router with throughput 1Gbps, 10 (even) ports, means line speed is 100Mbps (given certain conditions)
+- Delay
+  - Queuing delay important
+- Packet loss
+
+### Router internals
+
+- Router consists of 4 different parts
+  - Input port
+  - Switching fabric
+  - Output port
+  - Processor
+- Input port
+  - Line termination, link layer protocol, lookup, forwarding, queuing in buffer
+- Output port
+  - Buffering, scheduling, link layer protocol, line termination
+- Switching fabric
+  - Transfer packets from input to output buffer
+  - Multiple ways to implement
+    - Memory
+    - Bus
+    - Interconnection network
+- Routing Information Base (RIB)
+  - Global view of network
+  - Overview of topology
+  - Knows which router is connected to which
+  - Requires destination subset, cost for hop, and more
+  - Uses Routing Protocol
+    - Do more research!
+    - RIB + Routing protocol = 2 main control plane components
+- Forwarding Information Base (FIB)
+  - Local forwarding decision
+- Process of router
+  - Packet reaches front of queue
+  - Ready to be transmitted to output port
+  - Might not be possible, due to multiple reasons
+    - Queue in output port
+    - Output port might be bottlenecked by switch connected to output port
+- Control plane
+  - Controlled by processor
+  - Which output port to send incoming packet?
+  - Forwarding Information Base (FIB) computed
+    - This is the forwarding table
+    - Computed using OSPF and BGP (more protocols, but we focus on these)
+- Memory in router
+  - Need faster than RAM
+  - Not use adressed memory, which is too slow
+  - Content-Addressable Memory (CAM)
+    - Used in switches and routers for exact matches
+  - Ternary CAM (TCAM)
+    - Used in routers for longest prefix matches
+
+### Intra-domain routing
+
+- Intra-domain vs inter-domain
+  - Intra = within one
+  - Inter = between multiple
+  - Domain = collection of interconnected devices and network objects
+- Open Shortest Path First (OSPF) used for intra-domain routing
+- (Mainly) BGP used for inter-domain
+- Link State vs Distance Vector
+- Autonomous systems on internet (?)
+  - Has ID
+- Intra-domain routing protocol build routing tables
+  - Table consist of [Destination, next hop] pairs
+    - See slides for picture
+  - Routing protocols rub netween routers to maintain correct picture of network topology
+  - Shortest path found through distributed and dynamic routing algorithms
+  - Route summarization reduces size of routing table
+  - Many ways to view cost in a link
+    - Length
+    - Bandwisth
+    - Delay
+    - Packet loss
+    - More
+- Choice of routing protocol
+  - Depends on network complexity, size, policies
+  - Scalability
+  - Stabiliy during outages
+  - Speed of convergence
+  - Metrics
+  - Can use distance vector or link state
+  - Distance vector
+    - Route Information Protocol (RIP)
+    - Bellman-ford
+    - Do research
+  - Link state
+    - OSPF
+    - Dijkstra
+    - Tell everyone what you know about your neighbours
+      - Each ndoe sends all nodes information on state of directly connected links
+      - Global: all routers have complete topology
+- Link cost
+  - Abstraction, but highly relevant
+  - Inversely related to bandwidth
+  - Inversely related to congestion
+  - OSPF cost metric is 16 bits long
+    - Max cost 65535
+  - $c(x,y)$ = cost of link $(x,y)$
+    - Basic unit is 100Mbps
+  - Cost = reference-bandwidth[bps]/interface-bandwidth[bps]
+    - Same reference bandwidth for all routers in OSPF domain
+    - Default reference-bandwidth = $10^8$ bps
+  - See slides for more conventions
+    - For instance use $\frac{1}{\sqrt{bandwidth}}$ (i think)
+
+### Open Shortest Path First (OSPF)
+
+- Link state
+- Dijkstra
+- For larger networks, shortest path first algorithms will consume more memory and CPU resources
+- Add additional hierarchy Area
+  - Shortest Path First computed within area
+- Areas scale OSPF to support large networks and reduce
+  - Link state DB size
+  - CPU processing
+  - Number of link state updates
+- *Backbone area*: all other areas connected to it
+- *Stub areas*
+  - External routes not communicated
+  - Reduces size of link state
+- As a routing protocol
+  - Two-layer hierarchy
+    - Traffic between non-backbone areas must pass through the backbone area
+  - All routers within OSPF area have synchronized link-state information in OSPF link-state DB
+    - Areas have area ID of 32 bits
+    - Backbone area has address 0
+    - Router in area stores topological information for
+      - State of all links in area
+      - Summary links describing IP networks in other areas
+      - External links describing IP networks in other networks
+  - Classless routing protocol: supports variable-length subnet masking (VLSM) and discontinuous networks
+  - Uses muticasting and unicast for sending messages
+  - Supports auth
+  - Runs on top of IP (protocol nr 89)
+- Router types
+  - Internal-area routers (IA)
+    - Interfaces only within one area
+    - Exchange routing info withon OSPF area
+    - Holds topological information on
+      - State of all intra-area links
+      - Summary links of IP networks in other areas
+      - External networks or default routes
+  - Backbone routers
+    - Interface in area 0
+    - Complete topological DB for network
+      - State of backbone links
+      - Summary links for IP in other areas
+      - External links that describe external IP networks
+  - Area border routers (ABR)
+    - Interface in two or mrore areas of which one is area 0
+    - OSPF process per area
+    - Virtual links
+    - Topology information
+      - Per connected area
+      - Summarized routes per area
+      - External routes
+  - Autonomous System boundary/border routers (ASBR)
+    - Exchange readability information with other domains
+      - E.g. OSPF, RIP, BGP
+    - Import external routes into OSPF
+    - Every router knows parh to ASBRs
+- OSPF internal routes
+  - Intra-area route
+    - Route to destination in same area
+  - Inter-area route
+    - Route to destination in another area
+  - OSPF route summarization
+    - Keeps routing tables smaller
+    - On any bit boundary (variable subnet mask)
+      - See slide 23
+    - IP addresses carefully assigned
+      - Enough addresses to allow expansion
+      - Set bit boundary on which to summarize routes
+- OSPF external routes
+  - End-end paths consisting of
+    - External portion with cost assigned by ASBR
+    - Internal portion with cost calculated using OSPF standard algorithm
+  - External route type 1: cost is sum of internal and external cost
+  - External route type 2: cost ignores OSPF internal cost
+  - External route summary
+    - Performed by ASBR
+    - Applies to external routes injected into OSPF network
+- Stub areas
+  - Routers don't maintain information about external networks
+  - No direct connection to external network
+  - ABR generate default external routes into stub area
+  - Stub area router = topological database
+    - State of all local links
+    - Summary links describe IP networks in other areas
+    - Default external route
+- Not So Stubby Area (NSSA)
+  - Is a stub area
+  - Can import AS external routes through ASBR within the area
+- Totally Stubby Area
+  - All inter-area and external traffic matched to default route announced by ABR
+  - Routers hold database that describes
+    - State of all local links only
+    - Default route
+- How does OSPF work
+  - Routers must discover each other
+  - Routers update each other for consistent link-state databases
+  - Each router computes shortest path to every network in its link-state DB using Dijkstra
+- OSPF adjacency
+  - Adjacency must be established in different OSPF network types
+    - Broadcast networks
+      - Most used
+      - OSPF DR and OSPF BDR selection
+    - Point-to-point networks
+      - One to one connections
+      - No OSPF DR and BDR selection
+    - Non-broadcast multiple access (NBMA)
+      - All transmission is unicast
+      - OSPF DR and BDR selection
+    - Point-to-multipoint networks
+      - Point to point links, but OSPF packets work with multicast
+      - No OSPF DR and BDR selection
+  - Designated router (DR) reduces OSPF traffic on broadcast networks
+    - Exchange of topological database with every router would require $\frac{n(n-1)}{2}$ adjacencies in broadcast network
+    - Each router establishes adjacency with DR or backup DR (BDR)
+    - Routers only synchronize with DR/BDR
+  - Establishing adjacency
+    - Routers generate OSPF hello packets on every interface
+      - Sent to multicast address 224.0.0.5
+    - OSPF hello protocol elects
+      - DR: highest OSPF interface priority
+      - BDR: second highest OSPF interface priority
+      - If there is a tie, largest router ID breaks the tie
+  - Initial link state DB sync - exchanging Link State Advertisement (LSA)
+    - Hello protocol
+      - Neighbor discovery
+      - DR/BDR election
+    - DB exchange
+      - Exchange Database Description (DD) packets
+      - Master=highest Router ID may retransmit DD packets
+    - Database loading
+      - Request missing/more current LSAs
+    - See slide 36 for more info
+- Routers exchange LSA in OSPF packets to maintain consistent link-state DB
+  - LSA
+    - Link characteristics: IP address, subnet mask, cost, operational status
+    - Route summarization
+  - Common LSA types
+    - Type 1 router LSA
+      - Generated by each OSPF router for each of its areas
+      - Describes advertisers router's directly connected links
+      - Flooded within area
+    - Type 2 network LSA
+      - Generated by DR
+      - Describes broadcast/NBMA networks and their attached routers
+      - Flooded within area
+    - Type 3 summary LSA
+      - Generated by ABR
+      - Describes routes to networks in other areas within OSPF network
+      - Flooded to routers in all non-local OSPF areas except Totally Stubby Areas
+    - Type 4 ASBR summary LSA
+      - Originated by ABR
+      - Describes route to ASBR
+      - Flooded through OSPF network (except stub areas)
+    - Type 5 ASBR external LSA
+      - Originates in ASBR
+      - Describe routes external to OSPF network
+      - Flooded through OSPF areas network (except stub areas)
+    - Type 7 NSSA external LSA
+      - Describes routes external to OSPF network
+      - Flooded only within NSSA
+  - LSAs flooded to entire area by OSPF Link State Update packets sent directly over IP
+  - LSA flooding on broadcast networks
+    - OSPF packets originates from DR or BDR using multicast address 224.0.0.5
+    - Non-DR/BDR routes send link state update and link state ack packets using multicast address 224.0.0.6
+- OSPF packet type
+  - Common OSPF header for all 5 types of message
+    - Encapsulated in IP
+      - Protocol field = 89
+      - Multicast address on broadcast and p-p networks (225.0.0.5 for all OSPF routers)
+      - Unicast address on non-broadcast networks
+    - **Version**
+    - **Type** of OSPF packet
+    - **Packet length** including header
+    - **Router ID** of one of router's interfaces
+    - **Area ID** of interface on which packet is being sent
+    - **Checksum** of entire packet
+    - **Auth type**
+      - 0 = no auth
+      - 1 = simple password
+      - 2 = MD5 checksum
+  - Messages
+    - Hello (type=1)
+      - Discover neighbors and build adjacencies
+    - Database Description (type=2)
+      - LSA headers for DB sync between routers
+    - Link State Request (type=3)
+      - Request specific LSAs
+    - Link State Update (type=4)
+      - LSAs sent as response to LS request, on link change and every 30 min, using flooding
+    - Link State Ack (type=5)
+      - Acks LS update packet types - reliable flooding
+  - Packet type 1: hello packet
+    - **Network mask** of interface on which hello packet is being sent
+    - **Hello interval**: must be same for all routers attached to common network
+    - **Options**: capabilities a router may or may not support
+    - **Router priority**: router with higher priority takes precedence in DR election
+    - **Router dead-interval**: no packet received for ded-interval duration, neighbor is dead
+    - **DR address** (interface IP address)
+    - **BDR address** (interface IP address)
+    - **Neighbor IDs**: list of neighbor routers from which router has received hellos within dead-interval
+  - Packet type 2: DD packet
+    - DD header (in addition to OSPF header)
+      - **Interface MTU** (maximum transmission unit)
+      - **I/M/MS bits**: initial-bit, more-bit, master/slave bit
+      - **DD sequence number**
+    - LSA header
+      - **Link State Age**: seconds since origination
+      - **Link state ID** depends on LS type (see slides)
+      - **Advertising router**: router ID of originator
+      - **LS seq number** helps identify most recent LSA
+  - Packet type 3 & 4
+    - Database exchange: LS request/update
+    - If no match in local DB for LSA headers in received DD packets then request complete LSA using LS req packet
+    - LS request
+      - **LS type**
+      - **LS ID**
+      - **Advertising router**
+      - Uniquely defines LSA, but not its instance
+    - LS update issued
+      - In reponse to LS request
+      - When change in link state
+      - Every 30 mins
+    - LS update
+      - **Number of advertisements**
+  - Link state DB in each node build from flooding LSAs
+    - E.g. router LSA, network LSA
+- OSPF in operations
+  - When adding new router, network engineer must answer following questions
+    - What type of router will the router be (AR, stub router, ABR)?
+    - If the router is ABR or ASBR, what routes will it summarize?
+    - What impact would the failure of the router have for OSPF routing?
+    - Will the router be DR/DBR?
+    - How will the router affect the performance of other OSPF routers?
+  - OSPF maintains link-state DB that requires sizeable memory
+  - If size of topology grows out of bounds, shortest path first may hog CPU resources
+  - OSPF assumes hierarchical network topology
+  - To reduce size of link-state database an area may be split
+- See slide 52 for useful  summary of OSPF

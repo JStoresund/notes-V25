@@ -1,0 +1,111 @@
+# Finance
+
+## Finance as science
+
+- Shows how people choose between uncertain future values
+- Studies economic problems for alternatives that involve time, money and uncertainty
+- Went from descriptive to analytic and quentitative
+- 2 angles of approach
+  - Solving decision problems in practice (managerial finance)
+  - Generate knowledge of general validity (theory of finance)
+- Main tools of finance
+  - Formulation of theories
+  - Empirical testing through confrontation with real-life data
+  - Application of results
+- Interlocking cycles of scientific and applied results
+  - ![alt text](image.png)
+- Finance as theoretical science
+  - Takes actual, relevant problem
+  - Make problem manageable by simplifying assumptions
+    - Greedy investors, no transaction cost, etc.
+  - Translate into mathematical terms
+  - Use math to formulate predictions
+    - Hypotheses
+    - Prices
+- Finance as empirical science
+  - Tests financial theories
+  - Confronts solutions with real-life data
+    - Prices on financial stocks, bonds, derivatives, etc.
+    - Accounting and other data
+  - Empirical relations in finance are special
+- Finance as an applied science
+  - Use results of not rejected theories to:
+    - Buy or sell on financial market
+    - Accept or reject investment proposal
+    - Choose capital structure for project or company
+- Nature of financial economics
+  - Makes relations less precise
+    - Studies how people choose between uncertain future values
+      - Largely unpredictable due to financial
+    - On markets, accurate predictions self-destruct
+      - Information allowing accurate prices immediately incorporated into pricing
+      - Later price changes depend on new information
+  - Market efficiency
+    - Explains why important study objects like stock price should be unpredictable
+  - Financial market functions properly if there is high unexplained variance
+
+## Time value of money
+- Free risk interest rate
+  - 1 USD today is worth more than 1 USD tomorrow
+  - "Price" of postponing/advancing consumption
+  - Does not include compensation of risk
+  - 2 reasons why?
+    - Time preferences (human inpacience)
+      - Prefer present to future consumption
+    - Productive investment opportunities
+      - Increase consumption later by giving up consumption now
+- Consequence
+  - Amounts cannot be compared in different points in time
+  - Amounts have to be moved through time to same point, adjusting for time value
+    - *Compounding* if moved forward in time
+    - *Discounting* if moved backward in time
+  - Interest is compounded when
+    - Added to principal sum
+    - Starts earning interest
+    - Formula interest: $FV_T = PV(1+r)^T$
+      - $FV$: future value
+      - $PV$: present value
+      - $r$: interest rate
+  - Same principle applies to discounting
+    - Now we want to find $PV$
+    - Formula: $PV = \frac{FV_T}{(1+r)^T}$
+  - Compounding periods are not necessarily the same as interest periods
+    - Corporate bonds often pay interest 2 times per year even though interest rate is annual
+    - Effective annual rate for 10\% annual rate becomes $1.05^2 = 1.1025$
+    - Formula for future value with variable comopound frequency is $FV_T = PV(1+\frac{r}{n})^{T_n}$
+    - If $n\to \infty$, the formula becomes $FV_T = PV[(1+\frac{r}{n})^\frac{n}{r}]^{rT}$
+    - Remember $e = \lim_{c \to \infty} (1 + \frac{1}{c})^c \approx 2.71828\dots$
+    - Formula becomes $FV_T = PV\cdot e^{rT}$
+    - Normal to use logarithmic rates as follows: $\ln(\frac{FV_T}{PV}) = rT$
+    - Advantageous if calculating daily stock prices
+      - $\ln(\frac{FV_1}{PV_1}\cdot \frac{FV_2}{PV_2}) = \ln(\frac{FV_1}{PV_1}) + \ln(\frac{FV_2}{PV_2}) = r_1 + r_2$
+      - Not additive accross investments
+- Annuities and perpetuities
+  - Cash flows often come in series
+  - Annuity = yearly, perpetuity = forever
+  - Use math to calculate value
+  - Series of $n$ peyments of amount $A$: $PV = \frac{A}{1+r} + \frac{A}{(1+r)^2}+\dots+\dots+\frac{A}{(1+r)^n}$
+  - Gordon growth model = present value of perpetuity
+  - Formula: $PV = \frac{A}{r}$ (easily derived, apparently)
+  - Formule for perpetuity witht growth $g$: $PV=\frac{A}{r-g}, r>g$
+  - Often used due to simplicity
+
+## Risk and valuation
+
+- Valuation is important
+- Defined as discounted value of expected future cash flow over time
+- Formula: $Value = \sum^t\frac{Exp[Cashflow_t]}{(1+discount_t)^t}$
+- Two major dimentions to value: time and risk
+- Risk
+  - Can be accounted for in different ways
+    - Adjust discount rate
+      - Use Capital Asset Pricing Model (CAPM) or
+      - Use Ross' Arbitrage Pricing Theory (APT)
+      - Formula becomes $Value = \sum^t\frac{Exp[Cashflow_t]}{(1+risk\space adjusted\space discount_t)^t}$
+    - Adjust cash flow to certainty equivalent cash flows
+      - Using CAPM or
+      - Derivative securities such as futures
+      - Formula becomes $Value = \sum^t\frac{CertaintyEquivalent[Cashflow_t]}{(1+risk\space adjusted\space discount_t)^t}$
+    - Adjust probabilities from normal to risk-neutral or equivalent martingale probabilities
+      - Black & Scholes or binomial option pricing
+      - Formula becomes $Value = \sum^t\frac{Exp^P[Cashflow_t]}{(1+risk\space adjusted\space discount_t)^t}$
