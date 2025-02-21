@@ -250,7 +250,7 @@
   - Ternary CAM (TCAM)
     - Used in routers for longest prefix matches
 
-### Intra-domain routing
+## Intra-domain and inter-domain routing
 
 - Intra-domain vs inter-domain
   - Intra = within one
@@ -318,6 +318,7 @@
 - *Backbone area*: all other areas connected to it
 - *Stub areas*
   - External routes not communicated
+  - Prevent propagation of external routes to reduce DB size
   - Reduces size of link state
 - As a routing protocol
   - Two-layer hierarchy
@@ -436,6 +437,7 @@
     - Database loading
       - Request missing/more current LSAs
     - See slide 36 for more info
+  - LSA = messages sent to announce changes in network
 - Routers exchange LSA in OSPF packets to maintain consistent link-state DB
   - LSA
     - Link characteristics: IP address, subnet mask, cost, operational status
@@ -542,3 +544,469 @@
   - OSPF assumes hierarchical network topology
   - To reduce size of link-state database an area may be split
 - See slide 52 for useful  summary of OSPF
+- Research:
+  - RIP and ISIS
+  - Stub areas, NSSR, TSA
+    - Internal routes, inter-area routes, external routes
+
+### Border Gateway Protocol (BGP)
+
+- Inter-domain protocol
+- Linking entities
+- Interconnection of ISPs on different tiers
+  - Remember tier 1 (large region, continent), tier 2 (multi-country), tier 3 (city) ISPs
+  - ISPs talking through routers using BGP
+- Number of hops
+  - Can be number of routers (not switches)
+  - Can also be numbers of Autonomous Systems (shortest AS-path)
+    - Not interesting how many routers are in each AS
+  - Preferable to have this smallest number of hops
+- Multi-homing
+  - Tier 3 network connected to multiple tier 2 ISPs
+  - Failover-protection in case one tier-2 router fails
+  - Normal for router ports to fail
+- Interconnection
+  - Private peering
+    - Directly p2p link
+    - Reduce payments to provider ISP
+  - Public peering
+    - Internet Exchange Point (IXP)
+    - Physical infrastructure that allow different ISPs to exchange routes and traffic between ASs using mutual peering agreements
+    - Reduce ISP dependency on upstream provider
+    - Increase efficiency
+    - 6 IXPs in Norway
+- Intra- vs inter-domain routing protocol metrics
+  - Intra-domain routing rely on single composite metric to choose best destination
+    - OSPF uses inverse of bandwidth
+    - RIP uses hop count
+    - BGP uses path vector with shortest number of AS hops
+      - Attributes describe path in various ways, allowing network admins to implement various routing policies to select a single best path to each destination
+      - See slides for how path vector is implemented in ASs
+      - Not the only policy (10 selection criteria)
+        - E.g. also Local Preference and Multi-Exit Discriminator (MED)
+- BGP operation
+  - Port 179
+  - Start BGP on router using AS number on local router
+    - Manually configure neighbors
+  - Neighbor advertises routes
+    - BGP peers exchange full BGP routing tables initially
+  - After full exchange, only incremental updates are sent
+  - After establishing BGP sessions, routers exchange keepalives
+    - Tells neighbors router is still available
+    - Tells that there are no changes (if no additional update message)
+    - No updates within HoldTime implies to neighbors router is erased and session is closed
+- Exterior BGP (eBGP)
+  - Across AS boundaries
+  - Exchange prefixes with other ASes
+- Interior BGP (iBGP)
+  - Between BGP nodes within AS
+  - Redistribute AS border routes reaches specific address
+- Manipulating path selection (AS-PATH prepending)
+  - Adding end destination AS number multiple times to increase vector length
+    - (AS1, AS2, AS2, AS2, AS2)
+- BGP uses attribute types to describe advertised prefix
+
+## Network layer control
+
+### Software Defined Networking (SDN)
+
+- Traditional routing algorithms use per-router control plane
+  - Computing forwarding table by exchanging routing messages accoring to routing protocol
+  - Everything on single device
+  - Also needs configuration do be done on every single device
+    - Pain
+  - Mostly still this way today
+- SDN control plane
+  - Provides more flexibility
+  - Control plane controlled from central area
+  - SDN controller computes and installs forwarding table in switches/routers
+    - Makes it possible to use layer 2 devices as routers
+  - Routers no longer need computing capability
+  - More ports per device
+  - Control layer communicates with Control Agents (CA), which lies in data plane
+    - Southbound API
+  - Control plane interacts with app layer
+    - Northbound API
+  - Protocols for communication between routers and control plane
+    - E.g. openflow
+  - Flow table rather than forwarding table
+  - Issues
+    - Single point of failure (control layer)
+    - Therefore still not widely deployed, especially in larger areas
+    - Data centers might use SDNs
+  - Two types of architecture for SDN controllers
+    - High Availability (HA)
+    - Fault Tolerant (FT)
+- Openflow
+  - Openflow controller runs control plane and programs switch
+  - Implemented on a separate HW device
+  - Protocol defines:
+    - Device state and behaviour
+    - Communication messages and their formats
+    - Unencrypted TCP connections defined within a data center
+    - Encrypted over the internet (secure channel)
+  - One controller can program multiple packet switches in data plane
+  - Defines 3 things
+    - Switch state
+      - What can software configure to match packets and how is it represented?
+      - Physical ports and virtual ports
+    - Switch behaviour
+      - Given a state, how shall switch forward or modify packets?
+      - Match-and-action
+    - Communication with controller
+      - How shall changes to switch state be described?
+- Data plan flow focus
+  - Packet-switch (layer 3 and/or layer 2 switches)
+  - Flow: packets defined by header fields
+    - E.g. ethernet, VLAN, IP, TCP/UDP port pairs
+    - Unidirectional
+  - Flow entries in flow tables
+    - Represent flow in devices
+    - First header field match selected
+    - Counters: flow statistics
+    - Action performed: drop, forward, modify matched packet and send to controller
+    - Computed, installed, updated by remote controller
+    - Defins router's general forwarding math+action rules
+  - In-band signalling
+    - Do research
+  - Out-of-band signalling
+    - Control plane traffic separated from data plane traffic
+- Software-defined WAN (SD-WAN)
+  - Centralized traffic engineering (TE) dynamically optimize site-to-site pathing
+- See slides for SDN summary
+
+### Network management
+
+- Traditional networks
+  - Control software runs independently in each device
+  - SNMP and netconf found in *management layer*
+- Components of network management
+  - Managing server
+  - Network management protocol
+    - Used by managing serve to query, configure, manage device
+    - Used by devices to inform managing server of data, events
+  - Managed device
+    - Equipment with manageable, configurable hardware, software components
+  - Data
+    - Device "state" config data, operational data, device statistics
+- Network operator approaches to management
+  - Command Line Interface (CLI)
+    - Operator issues direct to individual devices
+  - SNMP/MIB
+    - Operator queries/sets device data
+  - Netconf/Yang
+    - More abstract, network-wide, holistic
+    - Emphasis on multi-device config management
+    - Netconf: communicate yang-compatible actions/data to/from/among remote devices
+    - Yang: data modelling language
+- Simple Network Management Protocol (SNMP)
+  - Simple protocol for network management
+  - Application layer protocol
+    - Uses UDP
+  - Message types
+    - GetRequest: manager-to-agent - "get me data"
+    - GetNextRequest: same as above
+    - GetBulkRequest: same as above
+    - SetRequest: manager-to-agent - set MIB value
+    - Response: agent-to-manager - value, response to request
+    - Trap: agent-to-manager: inform about exceptional event
+  - Challenges
+    - Simple protocol, leaving hard work to developers
+    - SET requests sent independently. Might cause seriour error if multiple set requests sent at once to one device, and one fails
+    - SNMP does not include mechanism to undo recent changes in device config
+    - SNMP does not provide sync among multiple devices. If manager sends SET request to group of devices, it is possible only some arrive
+    - SNMP does not employ standard security mechanisms. Security is self-contained within the protocol, making credentials and key management complex and difficult to integrate with existing credential and key management systems
+- Network configuration protocol (NETCONF)
+  - Manage/configure devices network-wide
+  - Defines operations for managing network devices where config data can be retrieved, uploaded, manipulated and deleted
+  - Modifies several parameters in single operation
+  - Operation between managing server and managed network devices
+    - Actions: retrieve, set, modify, activate configurations
+    - Atomic-commit actions over multiple devices
+    - Query operational data and statistics
+    - Subscribe to notifications from devices
+  - Remote Procedure Call (RPC) paradigm
+    - NETCONF protocol messages encoded in XML
+    - Exchanged over secure, reliable transport protocol (e.g. TLS)
+  - Some NETCONF operations
+    - *Get-config*: retrieve all or part of given config. A device might have multiple configs
+    - *Get*: retrieve all or parts of both configuration state and operational state data
+    - *Edit-config*: change specified configurations at managed device. Managed device \<rpc-reply\> contains \<ok\> or \<rpcerror\> with rollback
+    - *Lock/unlock*: lock config datastore at managed device, to lock out CLI, netwonf, SNMP commands from other sources
+    - *Create-subscription*, *notification*: enable event notification subscription from managed device
+- Yet Another Next Generation (YANG)
+  - Data modelling language used to specify structure, syntax, semantics of netconf network management data
+  - NETCONF communicated YANG-compatible actions and data to/from/among remote devices
+  - XML document describing device and capabilities can be generated from YANG description
+  - Contraint among data that must be satisfied by a valid NETCONF configuration
+    - Ensure NETCONF configurations satisfies correctness, consistency
+
+### Broadcast and multicast routing
+
+- Unicast
+  - One to one
+  - Routing uses shortest path from source to receiver
+- Broadcast
+  - One to all
+  - Example DHCP to get network config data
+    - Send discover packet to either DHCP server or relay (which is connected to server over other networks)
+  - Both MAC and IP set to all 1s
+  - Example ARP
+    - All 1s is also broadcast MAC address
+  - For network-wide broadcast leyer-3 mechanism needed
+  - Source duplication
+    - Replicated unicast
+    - Separate copy of packet sent to each destination
+    - Recipients and their addresses must be known to sender
+    - Relies on unicast routing
+  - In-network duplication
+    - Packet duplicate created by network nodes
+    - Network nodes send to all nodes except the one it was received from (uncontrolled flooding)
+    - Causes *endless cycling* if there are cycles
+    - *Broadcast storm*: endless multiplication of packets
+    - Flooding must be controlled
+      - Instead use multicast to everyone (?)
+      - Router checks if it has already received the packet
+- Multicast
+  - One to many
+  - Network layer provides service to send from one to many
+  - Multicast routing allows source to send packet to subset of network nodes
+  - Source transmits only one copy of packet
+  - Examples
+    - Software upgrade
+    - Streaming
+  - Why?
+    - Better utilization of server, routers, bandwidth
+    - Concurrency delivery
+    - Simplified administration
+  - Receivers of multicast group must be identified
+  - Controlled flooding
+    - Minimize cost from receivers to source as opposed to source to destination in unicasting
+    - Packets only flooded if arrived on shortest path back to source
+      - Reverse path forwarding/broadcast (RPF/RFB)
+        - If datagram received on interface with shortest path to source: forward to all interfaces except incoming
+        - Else drop datagram
+        - See slides for illustration
+      - Source-specific tree
+        - Nodes only need to know next neighbor on shortest path to the source
+          - Based on unicast routing table
+      - E.g. Protocol Independent Multicast (PIM) Dense Mode
+    - No forwarding of packet duplicates
+      - Sequence-number controlled flooding
+        - Sequence number and source address/ID in packets
+        - Drop packet if it is duplicate of previously received packet
+        - E.g. OSPF
+      - Spanning-tree
+        - Nodes do not receive duplicates
+        - Shared tree
+          - Nodes use same spanning tree
+          - Only need to know its neighbors in the tree
+          - E.g. spanning tree algorithm
+          - E.g. PIM sparse mode
+        - Source-specific tree
+          - Spanning tree per source
+          - E.g. PIM dense mode
+        - Shortest spanning tree vs minimum cost tree
+          - SS: shortest path from source to each individual receiver
+          - MC: lowest total cost
+          - These are graph theory concepts, and are correlated to shared- and spurce-specific trees
+  - Elements in multicast routing architecture
+    - How to discover sources and receivers
+    - Building/maintaining distribution trees between source and receivers
+      - Unicast vs multicast routing protocol
+      - Unidirectional vs bidirectional
+      - Flooding vs explicit join
+      - Hard vs soft state
+      - Intra- vs inter-dimain
+    - Multicast group administration
+      - Join and leave: delivery without source knowing receivers
+  - Internet Group Message Protocol (IGMP)
+    - Common multicast protocol
+      - Alongside multicast OSPF and multicast BGP and more
+    - Multicast group members - group identification
+      - Multicast destination is addressed using address indirection
+        - Single identifier used for group of receivers
+        - Packet delivered to all addresses associated with group
+      - Multicast address defines a session (independent of users unicast address)
+      - IPv4 multicast group of receivers is a class D multicast IP address
+        - First hex is 0b1110 (look into, 0xD=0b1101)
+        - Addresses from 224.0.0.0 to 239.255.255.255
+      - IPv6 multicast address block FF00::/8
+      - There are well-known multicast address allocations (see slides)
+        - IGMP/MLD = 224.0.0.22
+        - PIM = 224.0.0.13
+      - Packet sent to multicast group always has unicast source address
+        - Source can never be multicast address
+  - Source and receivers in multicast groups
+    - Multicast ddress used for group of receivers
+      - Independent of receivers unicast address
+      - Identifies channel/content, not destination
+    - Source and receiver have home router supporting multicast
+    - Multicast session identified by *(s, M) =(source, Multicast group)*
+      - *(\*, M)*: shared tree
+      - *(s, M)*: source-specific tree
+  - IGMP for group membership
+    - Between hosts and their home multicast router
+    - IGMP snooping to avoid unnecessary traffic load
+    - IGMP header
+      - 1B type
+        - Host membership query
+        - Host membership report
+        - Leave group
+        - Group-source report
+        - Group-source leave
+        - (look into the different types)
+      - 1B max reponse time
+        - Max time before sending a responding report
+        - Default 10 sec
+      - 2B checksum
+      - 4B group address
+        - Multicast address
+    - IGMP membership query and membership report
+      - Multicast router sends general *membership query* to learn complete multicast reception state of neighboring interfaces
+      - Hosts request membership by sending *membership report*
+        - Sends address of multicast group to join
+      - Router sends IGMP query to ask hosts if they want to join multicast group
+      - Hosts can later back out of group
+    - IGMP snooping to avoid unnecessary traffic load
+      - *IGMP snooping*: switch prunes multicast traffic
+      - Prevent hosts on local network from receiving traffic from multicast group they have not explicitly joined
+      - See slides
+  - Multicast MAC addresses
+    - Must be used for multicast
+    - MAC address = *01:00:5E:\<0 + 23-bit mapping\>* (23-bit mapping from IPv4 address (multicast group I think))
+    - 5 bits lost (32-23 = 9, and the first 4 bits are always 0b1110)
+    - Must be filtered by network layer
+- Multicast routing independent of unicast routing protocol
+  - Establish route towards receivers
+    - Forward datagrams addressed to a group:
+    - To all subnets with subscriber/group members
+      - Multicast routing protocol builds network forwarding state
+    - To all subscribers in a subnet
+      - Ethernet multicast/broadcast
+  - Finding tree from source to multicast group members
+    - Source-based tree
+      - Several roots as different tree from each sender to receivers
+      - Shortest path trees
+      - Revese path forwarding
+    - Shared-tree
+      - All senders use same root, same tree used by all group members
+      - Center-based tree
+      - Not necessarily shortest path tree
+  - Multicast routing with source-specific tree
+    - PIM Dense Mode
+      - Dense mode for multicast groups that are densely distributed across network
+      - Source-specific tree
+        - Trees differ for each sender and receiver
+        - Home router of source *s* initiates creation of broadcast tree *(s, M)*
+      - Use flood-and-prune reverse path forwarding
+        - Shortest-tree path
+        - No topology discovery
+      - Branches without multicast group members are pruned
+        - Routers send *prune message*
+          - Remove router from tree of multicast group
+          - Recursive from routers with no group members
+      - When most routers have multicast group members
+        - PIM-DM based on flood-and-prune using message sent over IP
+          - *Hello*: detect PIM routers on same subnetwork
+            - Every 30 sec
+            - Sent to 224.0.0.13 (all PIM routers), TTL=1
+          - *Assert*: elects unique forwarder to avoid multiple copies of same session
+          - *Prune*: stop multicasting to networks without group member
+            - *Join*: sent toward receiver to override downstream prune
+          - *Graft/Graft-Ack*: join previously pruned multicast group
+          - *State refresh*: reduce flooding and pruning
+            - Send by source home router and propagated through whole network
+    - PIM Sparse Mode
+      - Addresses scalability
+        - Group members widely spread
+        - No redundant data packets
+        - Router memory and bandwidth savings compared to source-based trees
+      - Shared tree
+        - Source register at a defined *rendezvous point (RP)*
+        - *(\*, M)* same root for all mcast group members
+      - When more than 1 router on same subnet
+        - Elects *designated router* and backup to forward PIM messages towards RP
+      - Source registration at RP
+        - *Register (s, M)*: home router encapsulates multicast packet from source *s* and sends to RP on shortest path using unicast routing protocol
+        - *Join (s, M)*: RP responds with join message along reverse shortest path
+        - Source unicasts data to RP
+          - Tunneling
+        - RP can send stop message if no attached receivers
+        - After joining via RP, router can switch to source-specific tree
+          - Increases performance
+      - Selecting and advertising RP
+        - Group to RP mapping
+        - Static RP: manually configured in each PIM router
+        - *Bootstrap*
+          - Each candidate RP declares its existance to selected *BootStrap Router (BSR)* using unicast routing
+          - BSR announces candidate RPs periodically using flooding
+        - Auto RP
+          - Candidate RP announces itself to mappign agent in mcast group 224.0.1.39
+          - Mapping agent broker selects and announces RP in specific mcast group 224.0.1.40
+          - Dense mode or preconfigured
+        - Address embedded-RP
+          - RP's address encoded usign group-to-RP mapping in IPv6 multicast group address
+      - Building multicast tree
+        - Router sends join message to known RP
+          - Immediate routers update state and forward join
+          - PIM-SM wildcard join *(\*, M)*
+        - Hello to detect other PIM nodes
+          - Includes priority in for election of DR on broadcast network
+          - DR in receiver-side network sends join to RP
+          - DR in source-side network sends register message towards RP
+      - Receiver join creates multicast tree
+        - Receiver home router sends unicast join towards RP
+        - Forwarded using unicast router until arrives at router already belonging to spenning tree or at RP
+        - Paths of the tree-join message defines branches of spanning-tree from RP
+        - PIM control messages sent over IP
+          - Protocol field 103
+          - Multicast group 224.0.0.13
+    - Reverse path forwarding algorithm
+      - Source-based tree
+      - Each sender in broadcast network has own spenning tree in network
+      - If mcast diagram received on shortest path to route: flood datagram to all links except incoming
+      - Else: discard datagram
+- Summary
+  - Elements in multicast routing architecture
+    - How to discover sources
+    - Delivery without senders knowing receivers
+    - How to discover receivers
+      - Multicast group administration
+      - IGMP: query, report, leave
+    - Building/maintaining distribution trees between source and receivers
+      - Shared vs source-specific trees
+      - Flood-and-prune vs explicit join/leave
+  - Challenges around commercial use of multicast
+    - Downsides to multicast
+      - Routers need to maintain states on mcast groups
+      - Overhead due to state maintenance is demanding on router
+    - Group control: which receivers to a multicast tree
+      - DoS
+      - Billing of receivers
+    - Security
+      - Encryption with group of receivers
+    - Business model does not match multicast model
+      - Multi-source vs multi-receivers
+      - No support for billing
+      - Pricing of access bandwidth
+    - Management
+      - Shared trees $\rightarrow$ overload
+      - Source specific trees $\rightarrow$ # state variables in network
+      - Dependence outside domain is challenging
+- Multicast Open Shortest Path First (MOSPF)
+  - Extends unicast OSPF
+  - Group membership LSA (type=6) per group for establishing and pruning distribution tree
+    - Flooded like other LSAs
+  - Source-specific shortest path tree computed by routers on demand
+    - Recompouted on LS change
+    - Routers forward packet if on shortest path to multicast source
+  - Three roles for ABR in inter-area trees
+    -*Multicast forwarding function*: forward group membership info (LSA 6 per group) to backbone and multicast datagrams between areas
+    - *Wild-card multicast receiver* for all multicast groups
+    - *Proxy home router* for multicast datagrams between areas
+- Intra- and interdomain multicast
+  - When intra-domain mcast routing used within a domain, network operator configures IP mcast routers within domain
+  - Multicast extentions to BGP allows it to carry routing information for other protocols, including multicast information
+- See last slide for summary
+  

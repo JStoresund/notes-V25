@@ -1181,7 +1181,7 @@
   - $C = M^e\mod n$
   - Note that $M$ is a number lower than $n$
 - Decryption
-  - $M = C^d\mod n
+  - $M = C^d\mod n$
 - See slides for correctness proof
 - Implementation issues
   - Keygen
@@ -1263,3 +1263,559 @@
 - Practical problems with key generation
   - Poor RNG
   - Other problems through the last decades
+
+### PK cryptosystems based on discrete logarithm
+
+- Main alternative to RSA
+- Often more efficient than RSA when implemented on elliptic curves
+- Diffie-Hellman key exchange
+  - Public knowledge: Generetor $g$ of multiplicative group $G$ of order $t$
+  - Alice and Bob randomly select values $0<a, b<t$
+  - Alice sends $g^a$ to Bob
+  - Bob sends $g^b$ to Alice
+  - Both compute $Z = g^{ab}$
+  - Originally $G$ used was $\Z_p^*$ for large $p$
+  - Today normal to use elliptic curve group for $G$
+  - Now, $Z$ can be used to compute key for other cryptocipher
+  - Security
+    - Attacker who can find discrete logarithms in $G$ can break by compyting $a$ or $b$
+    - Unknown whether better way exists to break protocol
+    - *Diffie-Hellman problem* is finding $g^{ab}$ from knowledge of $g^a$ and $g^b$
+  - Authenticated Diffie-Hellman
+    - Basic protocol does not authenticate messages between Alice or Bob
+    - Alice and Bob do not know who secret $Z$ is shared with unless messages are authenticated
+    - Allows man-in-the-middle attack
+    - Auth can be added in different ways, for example digital signatures
+  - Static and ephemeral Diffie-Hellman
+    - Above description uses *ephemeral keys*, which are keys that are used once and then discarded
+    - In static DH, Alice chooses long-term private key $x_A$ which corresponds to key $y_A = g^{x_A}$
+    - Alice and Bob can find shared secret $S = g^{x_Ax_B}$
+    - $S$ is static: stays the same long term until Alice or Bob changes their key
+- Elgamar cryptosystem
+  - Turns DH into cryptosystem
+  - Here, we look at original version where $G=Z_p^*$
+  - Alice combines her public ephemeral private key with Bob's long-term public key
+  - Keygen
+    - Select prime $p$ and generator $g$ of $\Z_p^*$
+    - Select long-term private key $1<x<p-1$
+    - Compute $y=g^x\mod p$
+    - Public key is $(p,g,y)$
+    - Often $p$ and $g$ are shared between all users in some system
+  - Encryption
+    - Public key is $K_E=(p,g,y)$
+    - Choose any $0<M<p$
+    - Choose $k$ at random and compute $g^k\mod p$
+    - $C = E(M, K_E) = (g^k\mod p, My^k\mod p)$
+  - Decryption
+    - Private key is $K_D=x$
+    - $C = (C_1, C_2)$
+    - Compute $C_1^x\mod p$
+    - $D(C, K_D) = C_2\cdot (C_i^x)^{-1}\mod p = M$
+  - Why does this work?
+    - Sender knows ephemeral private key $k$ and long-term public key $y$
+    - Receiver knows static private key $x$ and ephemeral public key $g^k \mod p$
+    - Both can compute DH value for two public keys: $C_1 = g^k\mod p, y=g^x\mod p$
+    - DH value, $y^k\mod p = C_1^x\mod p$ is used as mask for message $M$
+  - See slides for example
+  - Security
+    - System can be broken by determining private key $g^x\mod p$ if solver can solve discrete log problem
+    - Quite possible for many users to share $p$ and $g$ values
+    - No need for padding as in RSA, since ciphertext is already randomized
+      - May be required to achieve other properties
+    - Proof of security in suitable model subject to difficulty of so-called *decision DH problem*
+- Discrete log problem over $\Z_p$
+  - Let $p$ be a large prime
+  - Denote $g$ as a generator of multiplicative group of $\Z_p$
+    - For any nonzero element in $\Z_p$ we can find unique $0<i<p$ such that $a=g^i(\mod p)$
+  - We say that $\log_g(a) = i(\mod p)$
+- Discrete log problem
+  - Given $a$, find $\log_g(a)(\mod p)$
+  - for sufficiently large $p$, problem is intractable
+- Using discrete log
+  - Ciphers using discrete log depends on preperty that $a^{p-1}\equiv_p 1$ for all nonzero elements in $\Z_p$
+  - If possible to compute discete logs in $G$, decision DH does not hold
+  - Solving discrete log problem over $\Z_p$ is comparable to difficulty of factoring product of two primes
+    - Discrete log algs give same level of security as RSA
+- Elliptic curves
+  - Aglebraic structures formed from cubic equations
+  - Example is set of all pairs $(x,y)$ that satisfies $y^2 = x^3+ax+b\mod p$
+    - This example is over field $\Z_p$ but elliptic fields can be defined over any field
+  - Once identity element is added, bonary operations can be defined on this point
+  - With this operation elliptic curve points form *elliptic curve group*
+  - Normal to identify a curve as $E_p(a, b)$
+    - See slides for example
+  - Computations
+    - Elliptic curve group could be denoted by any symbol, but by convention it is usually called elliptic curve *addition*
+    - $P+Q=R$ shows group operation on curve points $P$ and $Q$ with result $R$
+    - *Elliptic curve discrete log problem* finds value of $m$, given point $P$ and generator $G$ so that $P=mG$
+    - Efficient computation of alliptic curve multiplication can use *double-and-add algorithm*, by replacing multiplication in the square and multiply algorithm with addition
+  - Elliptic curve representations
+    - Short Weistrass
+    - Montgomery
+    - Edwards
+    - See slides
+  - Choosing elliptic curves
+    - New elliptic curve can be generated at any time, but standard applications usually use standard curves
+    - Desirable that generated curves don't have hidden properties, but this is disputed in some standard curves
+  - Curve 25519
+    - A curve allowing very fast computations
+    - Equation in Montgomery form is $y^2 = x^3 + 486662x^2+x$
+    - Field for computations is integer modulo $p$, where $p = 2^{255}-19$, which is prime
+  - Discrete logarithms on elliptic curves
+    - Finding the value of $m$
+    - Same as in $\Z_p^*$, but now addition rather than multiplication
+    - Best known algorithms are exponential in length of parameters
+    - Consequently elliptic curve implementations use much smaller keys
+    - Relative advantage increases at higher security levels
+    - Brute force search on 128b AES takes same computational effort as 3072b discrete log or elliptic curve of 256b
+  - Elliptic curve cryptography
+    - Most cryptosystems based on discrete logarithms can be constructed with elliptic curves as well as in $\Z_p^*$
+    - In particular, DH key exchange and Elgamal can be run on elliptic curves
+    - Widely deployed today
+  - Post-quantum cryptography
+    - Most PK crypto will be broken if quantum computers become available due to Shor's algorithm, which can also be used to find discrete logarithms
+    - Symmetric key crypto can still be used with double key length due to Grover's algorithm for searching
+    - Post-quantum Diffie-Hellman
+      - Currently no 'drop-in' replacement for DH
+      - Promising candidate was use of isogenies on elliptic curves (but this was broken D:)
+
+### Digital signatures
+
+- Major benefit of PK cryptosystems
+- In some countries legally binding like handwritten signatures
+- Widely deployed
+- Properties
+  - Confidentiality and auth
+    - MACs allow entities with shared secret to generate valid tag, providing integrity and auth
+    - Digital signatures use PK crypto; only owner of private key can generate correct signature
+    - Digital signatures provide non-repudiation
+  - Digital signeaures are made like this:
+    1. Hash
+    2. Sign (private key)
+    3. Verified (public key)
+- Overview
+  - Digital signatures allow signer, Alice, with public key $K_V$ to sign a message, using associated key $K_S$, so that anyone with $K_V$ can verify the signature
+  - Anyone with $K_V$ can verify:
+    - Message originated from Alice
+    - Message was not modified in transit
+  - Note that multiple people can possess $K_V$ without it posing a threat
+- Comparison to MACs
+  - MACs use symmetric key
+  - Digital signatures simplify key distribution and management
+  - Digital signatures publically verifiable and transferable
+  - Digital signatures provide non-repudiation
+  - MACs are shorter and 2-3x more efficient to generate
+- Elements of digital signatures
+  - 3 algorithms
+    - Key generation (generates 2 keys)
+    - Signature generation
+    - Signature verification
+  - Signature generation
+    - Inputs private key, $K_S$ and message $m$
+    - Outputs signature $\sigma = Sig(m, K_S)$
+    - Only owner of private key should be able to generate valid signature
+    - Should be possible to choose message as any bitstring
+  - Verification algorithm
+    - Inputs public key $K_V$, message $m$, claimed signature $\sigma$
+    - Outputs boolean value $Ver(m, \sigma, K_V)$ = true of false
+    - Anyone should be able to compute verification alg if they have public key
+    - Should have correctness and unforgeability properties
+      - $Ver$ returns true for all matching signature/verification keys
+      - Infeasible for anyone without $K_S$ to construct $m$ and $\sigma$ such that $Ver$ outputs true
+    - Possible to randomize signing alg so single message has multiple possible signatures
+    - We assume attacker has access to chosen message oracle; forging new signature should be hard even when can obtain signatures on messages of his choice
+- Security goals
+  - Several ways to attempt to break
+    - Key recovery: attempting to recover private key from public key and known signatures
+    - Selective forgery: choose message and attempt to obtain signature on that message
+    - Existential forgery: attacker attempts to forge signature on any message not previously signed, even if message is meaningless
+  - Modern digital signature schemes considered secure if the can resist existential forgery under chosen message attack
+- RSA signatures
+  - Widely deployed
+  - Can be broken by attacker who can factorize modulus
+  - Keygen
+    - Same as RSA encryption, but hash function $h$ is also required, and should be fixed public parameter of signature scheme
+  - Signature generation
+    - $\sigma = h(m)^d\mod n$
+  - Signature verification
+    - $h' = h(m)$
+    - Check whether $\sigma ^e\mod n=h'$
+  - Hash function
+    - $h$ can be standard hash function, like SHA-256
+    - Following 2 choices can be be proven secure with suitable assumptions
+      - *Full-domain hash*: implementation of $h$ which can take values randomly in range 1 to $n$
+      - *PSS*: probabilistic hash function similar to OAEP used for RSA encryption and is standardized in PKCS
+- Discrete logarithm signatures
+  - 4 versions
+    - Original Elgamal signatures set in $\Z_p^*$
+    - Schnorr signatures
+    - Digital signature algorithm (DSA)
+    - Version of DSA based on elliptic curve groups (ECDSA)
+  - Elgamal signature scheme in $\Z_p^*$
+    - Let $p$ be large prime, $g$ generator in $Z_p^*$
+    - Private signing key is $0<x<p-1$
+    - Public verification key is $y = g^x\mod p$
+    - Alice wants to sign value $0<m<p-1$
+    - $p$, $g$, $y$ public knowledge
+    - Signature generation
+      - Select random $0<k<p-1$ and compute $r = g^k\mod p$
+      - Compute $s = k^{-1}(m-xr)\mod (p-1)$ ($m$ is message that is to be signed)
+      - Signature is $(r, s)$ pair
+    - Signature verificaiion
+      - Verify that $g^m\equiv y^rr^s\mod p$
+  - Schnorr signature scheme in $\Z_p^*$
+    - Let $p$ be large prime, $g$ generator in $Z_p^*$
+    - Private signing key is $0<x<p-1$
+    - Public verification key is $y = g^x\mod p$
+    - Alice wants to sign value $0<m<p-1$
+    - Signature generation
+      - Select random $0<k<p-1$ and compute $r = g^k\mod p$
+      - Let $e = H(r||m)$
+      - Compute $s=k-xe\mod (p-1)!
+      - Signature is $(s, e)$ pair
+    - Signature verification
+      - Let $R_v = g^sy^e$
+      - Let $e_v = H(r_v||m)$
+      - Verify that $e_v = e$
+  - Digital signature algorithm (DSA)
+    - Based on elgamal signatures
+    - Parameters
+      - $p$, prime modulus of $L$ bits
+      - $q$, prime divisor of $p-1$ of $N$ bits
+      - Only certain valid combinations of $L$ and $N$
+        - $(L = 1024, N = 160)$
+        - $(L = 2048, N = 224)$
+        - $(L = 2048, N = 256)$
+        - $(L = 3072, N = 256)$
+      - $g = h^{\frac{p-1}{q}}\mod p, 1<h<p-1$
+      - $H$, sha family variant which outputs $N-bit$ digest$
+    - Key generation
+      - Do this once at the start
+      - Choose random signing key $0<x<q$
+      - $y = g^x\mod p$ is public verification key
+    - Signature generation
+      - For every message $m$ to be signed
+      - Choose $k$ at random $0<k<q$ and set $r=(g^k\mod p)\mod q$
+      - Set $s=k^{-1}(H(m)-xr)\mod q$
+      - Signature is $(r, s)$ pair
+    - Signature verification
+      - Check that $0<r<q$ and $0<s<q$
+      - Compute $w = s^{-1}\mod q$ and let:
+        - $u_1 = H(m)w\mod q\newline
+           u_2 = rw\mod q$
+      - Verify that $(g^{u_1}y^{-u_2}\mod p)\mod q = r$
+    - Comparison to elgamal signatures
+      - Complexity of signature generation is mainly one exponentiation with short exponent
+      - Signature verification requires 2 such exponentiations
+      - Signature size is $2N$ bits
+  - Elliptic curve digital signature algorithm (ECDSA)
+    - Similar to DSA except:
+      - Parameter $q$ is order of elliptic curve group
+      - Multiplication modulo $p$ is replaced by elliptic curve group operation
+      - After operation on group element only x-coordinate is kept
+    - Parameters
+      - $E$: approved elliptic curve field and equation
+      - $G$: elliptic curve group generator
+      - $n$: order of the elliptic curve group and a prime number
+      - $H$: SHA-2 family variant outputting $N$-bit digest
+    - (remember elliptic curve info)
+    - Key generation
+      - Choose random integer $0<d<n$ as signing key
+      - Compute $Y=dG$ as public verification key in group $G$
+      - Standard requires that before public key is used, it muct be checked to be a point on the curve $G$ different from identity
+    - Signature generation
+      - For every message, $m$, to be signed
+      1. Let $e=H(m)$
+      2. Choose random $0<k<n-1$ and compute $(x,y) = kG$
+      3. Set $r=x$, but return to step 2 if $r=0$
+      4. Set $s=k^{-1}(e+rd)\mod n$
+      5. Signature $\sigma = (r,s)$
+      - $r$ is x-coordinate og elliptic point, while $s$ is an integer modulo $n$
+    - Signature verification
+      - Check that $0<r<n$ and $0<s<n$
+      - Compute $w=s^{-1}\mod n$ and $e=H(m)$
+      - Set $u_1 = ew\mod n\newline
+             u_2 = rw\mod n$
+      - Compute point $(x,y) = u_1G + u_2Y$
+      - Verify that $(x,y)$ is not identity element of curve $E$ and $r\equiv x(\mod n)$
+    - ECDSA variants
+      - Deterministic ECDSA signatures
+        - Per-message key $k$ is deterministically computed as a function of the message (based on HMAC), to be signed awth private signing key $d$
+        - Recommended when good RNG is not available
+      - EdDSA signatures
+        - Uses Edwin curve 25519
+        - Deterministic version og Schnorr signatures
+    - ECDSA vs DSA
+      - DSA has clever design, meaning signatures using ECDSA generally don't have shorter signatures
+      - ECDSA signature size varies with curve used. For approved curves this can vary from 448 bits to 1024 bits
+      - ECDSA public keys shorter than DSA public keys
+
+## Key establishments and certificates
+
+- So far looked at cryptography primitives
+- Using these, how can we build more advances cryptographic protocols
+- *Key management* is essential part of setting up secure communication
+- *Key establishment* is the process of setting up cryptographic keys
+  - Key establishment in TLS uses public keys to allow clients and servers to share new communication key
+- *Digital certificates* are vital tool for key establishment based on PK crypto
+
+### Key establishment principles
+
+- Concerns generation, distribution, protection, destruction of cryptographic keys
+- Key generation: ideally keys are random
+- Key distribution: keys must be distributed in secure fashion
+- Key storage: keys must be accessible for use but not to unauthorized users
+- Key destruction: removing key from memory is not always easy
+- Key types
+  - Long-term keys
+    - Intended to be used for a long period (may be few hours, few months, few years)
+    - Can be either symmetric or or asymmetric depending on how they are used
+    - Used in establishment of session keys
+  - Ephemeral keys
+    - Generated for single use and then deleted
+    - Used in establishment of session keys
+  - Session keys
+    - Intended to be used for one communication session (few seconds, few hours, a day)
+    - Usually symmetric keys
+    - Should make different sessions independent in the sense that compromise of one session key should not affect other sessions
+- Adversary capabilities
+  - Assume they know details of cryptographic algorithms involved and that they are able to:
+    - Eavesdrop all messages sent in a protocol
+    - Alter messages using any information available
+    - Re-route any message to any user
+    - Obtain value of session key, $K_{AB}$ used in previous run of protocol
+- Security goals
+  - Defined by 2 properties
+    - Authentication
+      - Session key $K_{AB}$ should not be shared with a different party $C$
+    - Confidentiality
+      - Adversary is unable to obtain session key accepted by a particular party
+  - Authentication can be mutual (both parties receive) or unilateral (only provided to one side)
+  - Many real-world key establishments only achieve unilateral authentication
+
+### Key establishment types
+
+- 3 common categories of key establishment protocols
+  - Key pre-distribution where keys are set in advance
+  - Key transport where one party chooses key and distributes it
+  - Key agreement where two or more parties contribute to session key
+- Each approach can be both symmetric and asymmetric
+- Key pre-distribution
+  - Trusted authority (TA) generates and distributes long-term keys to all users when they join the system
+  - Simplest scheme assigns secret key to each pair of users
+    - Number of keys grow quadratically (poor scaling)
+  - TA only operates in pre-distribution phase and does not need to be online afterward
+- Session key transport with online server
+  - TA generates long-term shared key with each user
+  - TA generates and sends session keys to users when requested and protected by long-term keys
+  - TA must be trusted and is single point of attack
+  - Scalability can be problem
+  - Example is Kerberos
+  - Advantages
+    - No need for computationally expensive PK algorithms
+    - Only small amount of storage required by each user to store long-term key
+    - No certificate management overheads (distribution, validation, etc.)
+  - Disadvantages
+    - Requires TA to be available online
+    - TA is highly trusted an is single point of attack
+    - Scalability
+
+### Key establishment using public key encryption
+
+- One user chooses key and sends it encrypted with other parties public key
+- Each party can include random *nonce* to ensure key is new
+- A key derivation function (KDF) binds secret key with other protocol elements to prevent certain attacks
+- A standard KDF uses HMAC (KDF can be thought of as hash function)
+- TLS up to version 2 uses this type of key establishment
+- Key transport protocol
+  - ![alt text](image-18.png)
+  - $PK_A$ is $A$'s public key
+  - $Z$ is random value generated by $B$
+  - Session key can be $K_{AB} = KDF(Z, ID_A, ID_B, N_A, N_B)$
+- Key agreement
+  - Two parties each provide input to keying material
+  - Usually add auth with public keys, e.g. by signing exchanged messages
+  - Diffie-Hellman widely used key agreement protocol
+  - TLS includes DH, today usual method of key establishment in TLS
+- Signed Diffie-Hellman
+  - $A$ and $B$ are two parties with identities $ID_A$ and $ID_B$, who want to share session key
+  - Computation takes place in group $G$ with generator $g$
+  - $a,b$ are random values chosen by $A$ and $B$ in range up to order of $G$
+  - $Sig_A(m)$ is signature on messsage $m$ by $A$
+  - $Sig_B(m)$ is signature on messsage $m$ by $B$
+  - Both parties need the other's public signing key
+- Signed Diffie-Hellman protocol <div id="SignedDH"></div>
+  - ![alt text](image-19.png)
+  - $A$ checks signature received in step 2 and if valid computes shared secret key:
+    $Z=(g^b)^a = g^{ab}$
+  - Similarly, $B$ validates signature received in step 3
+  - Session key can be $K_{AB} = KDF(Z, ID_A, ID_B, g^a, g^b)$
+- Forward secrecy
+  - What if long-term key is compromised?
+    - Attacker can now act as owner of long-term key
+    - Previous session keys might also be compromised
+  - Definition of forward secrecy
+    - Key agreement protocol provides *(perfect) forward secrecy* if compromise of long-term private keys does not reveal session keys previously agreed using those long-term keys
+    - Remember attacker can see and record protocol messages
+- Post-compromise security (PCS)
+  - Sometimes possible to recover after long-term key is compromised (*self-healing procols*)
+  - Only works when attacker is passive
+  - Long-term key must evolve over time so attacker becomes locked out with long-term key updates
+  - Can be achieved by sending new Diffie-Hellman share with every message and change session key after every message
+  - Used today in messaging protocols like Signal
+  - Example: protocol in [Signed Diffie-Hellman protocol](#SignedDH) (Provides forward secrecy, not PCS)
+- Certificates
+  - (Using public keys)
+  - Key establishment can be achieved in several ways
+    - Public announcement
+      - Anyone can forge and do damage
+    - Publicly available directory
+      - More secure, but still single point of failure
+    - Public-key authority
+      - Central authority maintains dynamic directory
+      - Still drawbacks, e.g. users must appeal authority for every user it wants to contact, causign bottleneck
+    - Public-key certificates
+      - Used in practice
+      - Certificate is public key, identifier of key owner, all of which is signed by trusted 3rd party
+  - Digital certificates
+    - When using public key to encrypt message or verify signature, it is essential to be confident of correct binding between public key and its owner
+    - Normally achieved through *digital certificates*, containing public key and owner identity, and usually information such as signature algorithm and validity period
+    - Certificate digitally signed by party trusted by certificate verifier, called a *certification authority* (CA)
+    - Certificates play central role in key management for PKI
+- Public Key Infrastructure (PKI)
+  - Defined as ''framework that is established to issue, maintain and revoke public-keys certificates''
+  - A number of different legal or business entities may be involved, including:
+    - Registration authorities which manages identities
+    - Naming authorities which manage domain naming
+    - Certification authorities (CAs)
+  - Certification Authority (CA)
+    - Creates, issues and revokes certificates for users and other CAs
+    - Have a Certification Practice Statement (CPS), covering issues like:
+      - Checks performed before certificate issue
+      - Physical, personnel, procedural security controls for CA
+      - Technical and key pair protection and management controls
+      - Certificate revokation management procedures
+      - Audit procedures for CA
+      - Accreditation information
+      - Legal and privacy issues and liability limitations
+  - X.509 standard
+    - Widely used, allowing flexible extentions
+    - Important fields in X.509 digital certificates are:
+      - Version number
+      - Serial number (set by CA)
+      - Signature algorithm id (alg used for dig sigs)
+      - Issuer (name of CA)
+      - Subject (name of entity to which certificate is issued)
+      - PK info
+      - Validity period
+      - Digital signature (of certificate, signed by CA)
+  - Using a certificate
+    - Verifies by checking that CA signature is valid and that conditions set are correct
+    - In order to verify certificate, user must have correct public key of CA
+    - Users may obtain certiticates in different ways, such as
+      - Sent by owner during protocol run
+      - Distributed in web browsers
+      - In public directories
+      - As part of DNS record
+  - Certification paths
+    - If public key of a CA is not known known and trusted, it cannot be certified by different CA
+    - Chain of trust can be set up, where $CA_n \rightarrow CA_{n-1} \rightarrow \dots \rightarrow CA_0$
+      - If $CA_2$ trusts $CA_1$ and $CA_1$ trusts $CA_0$, $CA_2$ can trust $CA_0$
+  - Hierarcichal PKI
+    - Root CA trusts intermediate CAs, which give certifiactes to users
+    - Also possible with non-hierarcichal PKI, where any CA can verify the other CAs
+  - Browser PKI
+    - Multiple hierarchies with preloaded public keys as root CAs
+    - Other CAs can be added
+    - Own certificates can also be added
+    - Web servers send their public key and certificate to browser to start secure communication using TLS
+    - Root certificates are self-signed (root CA for root CA is root CA itself)
+  - Revocation
+    - Sometimes required to declare certificate invalid even though validity period still active
+    - To make this work, user must check to see which certificates have been revoked
+    - 2 widely deployed mechanisms
+      - *Certificate revocation list (CRL)*: Each CA periodically issues list of revoked certificates which can be downloaded and checked by clients
+      - *Online certificate status protocol (OCSP)*: Server maintains list of revoked certificates and responds to requests about specific certificates
+
+### Key establishment using symmetric key encryption
+
+- Options are as follows:
+  - Alice picks key, physically delivers to Bob
+    - Need to meet phyisically
+  - Third party selects key and phyiscally delivers to Bob
+    - Need to meet physically
+  - Alice and Bob have previously shared key which can be used to update key
+    - If attacker gains access to key at eny point, they can get access to all subsequent messages
+  - Alice and Bob have encrypted connection to Charlie, who can deliver new key to Alice and Bob
+- Needham-Shroeder protocol
+  - Notation
+    - Parties/principals: $A, B, S$ ($A$ and $B$ want to establish session key, $S$ is trusted authority)
+    - Shared secret keys: $K_{AS}, K_{BS}, K_{AB}$
+      - $K_{AS} and $K_{BS}$ are long-term keys, while $K_{AS}$ is session key
+    - Nonces $N_A, N_B$
+    - $S$ sends message $M$ to $A$
+    - $\{X\}_A$ is authenticated encryption of message $X$ using shared secret key $K$
+  - ![alt text](image-20.png)
+  - One of the most widely known key establishment protocols
+  - Basis for several protocols
+  - Vulnerable to replay attack
+    - Assume attacker $C$ obtains previously established session key $K_{AB}'$
+    - In the attack, $C$ masquerades as $A$ and can persuade $B$ to use old key $K_{AB}'$
+  - Repaired Needham-Shroeder protocol:
+  - ![alt text](image-21.png)
+  - Freshness
+    - To defend against replay attacks, new (fresh) keys must be established for each session
+    - 3 basic mechamisms achieve freshness
+      - Random challenges (nonces)
+      - Timestamps (string of current time)
+      - Counters (increased for each new message)
+    - Repaired NS uses random challenges to prioide freshness
+  - Tickets
+    - Alternative way to fix NS
+    - Uses key with validity period
+    - Suppose entity $A$ wishes to obtain access to server $B$
+    - Auth server $S$ issues *ticket* to allow $A$ to obtain access
+    - Ticket format: $\{K_{AB}, ID_A, ID_B, T_B\}_{K_{BS}}$
+      - $T_B$ is timestamp which can also be interpreted as validity period
+    - $A$ can obtain ticket and use it to gain access to $B$ at any time while $T_B$ is still valid
+  - Repaired Needham-Shroeder using tickets:
+  - ![alt text](image-22.png)
+- Kerberos
+  - Default windows authentication method
+  - Single sign-on (SSO) solution: users only need to enter usernames and passwords once in session
+  - Provide access selectively for a number of different online services using individual tickets
+  - Establish session key to deliver confidentiality and integrity services
+  - 3-level protocol
+    - Level 1: Client *C* interacts with authenticatino server *AS* in order to obtain ticket-grantin ticket. Happends once per session
+    - Level 2: Client *C* interacts with ticket-granting server *TGS* to obtain service ticket. Happens once for each server during session
+    - Level 3: Client *C* interacts with application server *V* in order to obtain a service. Happens each time client requeres service during session
+  - Level 1: interaction with auth server
+    - ![alt text](image-23.png)
+    - $ticket_{tgs} = \{K_{C, tgs}, ID_C, T_1\}_{K_{tgs}}$ for some period $T_1$
+    - Result: client has ticket which can be used to obtain different service-granting tickets
+    - $K_C$ is symmetric key shared with *AS*, typically generated by workstation of *C* from password entered by *C* at login time
+    - $K_{C, tgs}$ is new symmetric key generated by *AS* to share with *TGS*
+    - $N_1$ is nonce used by *C* to check that $K_{C, tgs}$ is fresh
+    - $K_{tgs}$ is long-term key shared between *AS* and *TGS*
+  - Level 2: interaction with ticket-granting server
+    - ![alt text](image-24.png)
+    - $ticket_V = \{K_{C, V}, ID_C, T_2\}_{K_V}$ for some period $T_2$
+    - $authenticator_{tgs} = \{ID_C, TS_1\}$ for some timestamp $TS_1$
+    - Result: client has service-granting ticket which can be used to obtain access to specific server
+    - $ticket_{tgs}$ is same as sent in level 1
+    - $K_{C,V}$ is session key used with server *V*
+    - $N_2$ is nonce used by *C* to check that $K_{C,V}$ is fresh
+    - *TGS* first obtains $K_{C, tgs}$ from $ticket_{tgs}$ and checks that fields in authenticator ar valid (includes checking $TS_1$ and that *C* is authed to access machine *V*)
+    - In practice *AS* and *TGS* may be same machine
+  - Level 3: interaciton with application server
+    - ![alt text](image-25.png)
+    - $authenticator_V = \{ID_C, TS_2\}_{K_{C-V}}$ for some timestamp $TS_2$
+    - Result: client has secure access to specific server *V*
+    - $ticket_V$ is same as sent in level 2
+    - $K_{C,V}$ is contained in $ticket_V$ and was sent to *C* in level 2 interaction
+    - Reply from *V* is intended to provide mutual auth so that *C* can check it using sevice *V*
+  - Limitations
+    - Limited scalability: each realm needs to share key with each other realm
+    - Suited for corporate environments with shared trust (public variants still exist)
+    - Offline password guessing is possible attack when client key $K_C$ is derived from human memorable password
+    - Kerberos standard does not specify how to use session key once established
