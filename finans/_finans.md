@@ -1,169 +1,6 @@
 # Finance for Science and Technology Students
-<!-- 
-## Finance as science
 
-- Shows how people choose between uncertain future values
-- Studies economic problems for alternatives that involve time, money and uncertainty
-- Went from descriptive to analytic and quentitative
-- 2 angles of approach
-  - Solving decision problems in practice (managerial finance)
-  - Generate knowledge of general validity (theory of finance)
-- Main tools of finance
-  - Formulation of theories
-  - Empirical testing through confrontation with real-life data
-  - Application of results
-- Interlocking cycles of scientific and applied results
-  - ![alt text](image.png)
-- Finance as theoretical science
-  - Takes actual, relevant problem
-  - Make problem manageable by simplifying assumptions
-    - Greedy investors, no transaction cost, etc.
-  - Translate into mathematical terms
-  - Use math to formulate predictions
-    - Hypotheses
-    - Prices
-- Finance as empirical science
-  - Tests financial theories
-  - Confronts solutions with real-life data
-    - Prices on financial stocks, bonds, derivatives, etc.
-    - Accounting and other data
-  - Empirical relations in finance are special
-- Finance as an applied science
-  - Use results of not rejected theories to:
-    - Buy or sell on financial market
-    - Accept or reject investment proposal
-    - Choose capital structure for project or company
-- Nature of financial economics
-  - Makes relations less precise
-    - Studies how people choose between uncertain future values
-      - Largely unpredictable due to financial
-    - On markets, accurate predictions self-destruct
-      - Information allowing accurate prices immediately incorporated into pricing
-      - Later price changes depend on new information
-  - Market efficiency
-    - Explains why important study objects like stock price should be unpredictable
-  - Financial market functions properly if there is high unexplained variance
-
-### Time value of money
-
-- Free risk interest rate
-  - 1 USD today is worth more than 1 USD tomorrow
-  - "Price" of postponing/advancing consumption
-  - Does not include compensation of risk
-  - 2 reasons why?
-    - Time preferences (human inpacience)
-      - Prefer present to future consumption
-    - Productive investment opportunities
-      - Increase consumption later by giving up consumption now
-- Consequence
-  - Amounts cannot be compared in different points in time
-  - Amounts have to be moved through time to same point, adjusting for time value
-    - *Compounding* if moved forward in time
-    - *Discounting* if moved backward in time
-  - Interest is compounded when
-    - Added to principal sum
-    - Starts earning interest
-    - Formula interest: $FV_T = PV(1+r)^T$
-      - $FV$: future value
-      - $PV$: present value
-      - $r$: interest rate
-  - Same principle applies to discounting
-    - Now we want to find $PV$
-    - Formula: $PV = \frac{FV_T}{(1+r)^T}$
-  - Compounding periods are not necessarily the same as interest periods
-    - Corporate bonds often pay interest 2 times per year even though interest rate is annual
-    - Effective annual rate for 10\% annual rate becomes $1.05^2 = 1.1025$
-    - Formula for future value with variable comopound frequency is $FV_T = PV(1+\frac{r}{n})^{T_n}$
-    - If $n\to \infty$, the formula becomes $FV_T = PV[(1+\frac{r}{n})^\frac{n}{r}]^{rT}$
-    - Remember $e = \lim_{c \to \infty} (1 + \frac{1}{c})^c \approx 2.71828\dots$
-    - Formula becomes $FV_T = PV\cdot e^{rT}$
-    - Normal to use logarithmic rates as follows: $\ln(\frac{FV_T}{PV}) = rT$
-    - Advantageous if calculating daily stock prices
-      - $\ln(\frac{FV_1}{PV_1}\cdot \frac{FV_2}{PV_2}) = \ln(\frac{FV_1}{PV_1}) + \ln(\frac{FV_2}{PV_2}) = r_1 + r_2$
-      - Not additive accross investments
-- Annuities and perpetuities
-  - Cash flows often come in series
-  - Annuity = yearly, perpetuity = forever
-  - Use math to calculate value
-  - Series of $n$ peyments of amount $A$: $PV = \frac{A}{1+r} + \frac{A}{(1+r)^2}+\dots+\dots+\frac{A}{(1+r)^n}$
-  - Gordon growth model = present value of perpetuity
-  - Formula: $PV = \frac{A}{r}$ (easily derived, apparently)
-  - Formule for perpetuity witht growth $g$: $PV=\frac{A}{r-g}, r>g$
-  - Often used due to simplicity
-
-### Risk and valuation
-
-- Valuation is important
-- Defined as discounted value of expected future cash flow over time
-- Formula: $Value = \sum^t\frac{Exp[Cashflow_t]}{(1+discount_t)^t}$
-- Two major dimentions to value: time and risk
-- Risk
-  - Can be accounted for in different ways
-    - Adjust discount rate
-      - Use Capital Asset Pricing Model (CAPM) or
-      - Use Ross' Arbitrage Pricing Theory (APT)
-      - Formula becomes $Value = \sum^t\frac{Exp[Cashflow_t]}{(1+risk\space adjusted\space discount_t)^t}$
-    - Adjust cash flow to certainty equivalent cash flows
-      - Using CAPM or
-      - Derivative securities such as futures
-      - Formula becomes $Value = \sum^t\frac{CertaintyEquivalent[Cashflow_t]}{(1+risk\space adjusted\space discount_t)^t}$
-    - Adjust probabilities from normal to risk-neutral or equivalent martingale probabilities
-      - Black & Scholes or binomial option pricing
-      - Formula becomes $Value = \sum^t\frac{Exp^P[Cashflow_t]}{(1+risk\space adjusted\space discount_t)^t}$
-
-## Fundamental concepts and techniques
-
-- Recall: two basic rules
-  - $1 today si worth mroe than $1 tomorrow
-  - Safe $1 is worth more than risky $1
-- Time value of money
-  - Risk-free rate
-  - Discounting and compounding
-  - Annuities and perpetuities
-
-#### Investment analysis
-
-- Accounting representation of a firm
-  - Marked values used when possible
-  - Book values used when necessary
-    - Comes from accounting systems
-      - Flow of goods/money through firms (what comes in and what goes out)
-      - Effects of assets and liability equity (what the firm owns and where the money came from)
-  - See slides for accounting (financial) statements
-  - Book values can differ from market values
-    - Values are frozen when entered into books
-      - Long-lived assets can grow away over time
-    - Some assets grow over time, not recorded in books
-      - Result of R&D
-      - Market position, trade marks
-    - Accounting provides accountability
-      - Looking back at what happened
-      - Includes arbitrary allocations of cost and profit over time (deprecation)
-      - Includes elemnts not relevant for decisions (irreversible investments or sunk cost)
-- Discounting in investment analysis
-  - Example: tech project ZXco
-    - Technical and economic viability demonstrated in large test, cost €15 million
-    - Now considering commercial launch
-  - Cost of capital per project is 25%
-    - Includes time value of money and expected inflation
-    - Plus risk premium estimated from similar projects
-    - Thus defined, it is *opportunity cost per capital*
-  - Corporate tax rate is 30%
-  - ![alt text](image-1.png)
-  - ![alt text](image-2.png)
-  - Does accounting representation give decision criterion on whether to accept project or not?
-    - Book return < CoC in 2-3 years
-    - Could use weighted averages
-      - $\frac{205\cdot 0.85 + 150\cdot 0.56+100\cdot 0.21}{205+150+100} \approx 0.269 > CoC \implies$ accept?
-    - Heavily influenced by deprecation
-    - Ignores time and risk: later returns less valuable
-  - Financial representation provides proper decision framework
-    - Uses only data relevant for decision
-    - Uses cash flow as they occur
-
---- -->
-
-### **Finance for Science and Technology Students - Chapter 1: Introduction**
+## **Finance for Science and Technology Students - Chapter 1: Introduction**
 
 **Lecturers: Felipe Van de Sande Araujo, Anne Neumann, Carlos Miguel Dos Santos Oliveira**  
 **Date: January 8, 2025**  
@@ -172,7 +9,7 @@
 
 ### **1. Course Overview**
 
-- Introduces **finance** as a scientific discipline and a practical tool for financial decision-making.  
+- Introduces **finance** as a scientific discipline and a practical tool for financial decision- making.  
 - Assumes **no prior knowledge** of finance but builds on students' **quantitative skills**.  
 - Covers:  
   - **Time value of money**  
@@ -199,12 +36,12 @@
 - Uses:  
   - **Mathematical models**  
   - **Empirical testing**  
-  - **Application to real-world problems**  
+  - **Application to real- world problems**  
 
 #### **Key Approaches in Finance**
 
 1. **Managerial Finance**  
-   - Solves **practical** financial decision-making problems.  
+   - Solves **practical** financial decision- making problems.  
    - "Approximate answer to a precise problem."  
 2. **Financial Economics (Theory of Finance)**  
    - Develops **general knowledge** and principles.  
@@ -224,13 +61,13 @@
 ### **5. Key Tools in Finance**
 
 - **Theoretical models** → Predict market behaviors.  
-- **Empirical testing** → Compare theory to real-life data.  
+- **Empirical testing** → Compare theory to real- life data.  
 - **Practical application** → Use theories in investment, risk management, etc.  
 
 Example:  
 
 - **Option Pricing**  
-  - Develop a **mathematical model** (Black-Scholes).  
+  - Develop a **mathematical model** (Black- Scholes).  
   - Test it against **market data**.  
   - Use it in **trading and risk management**.  
 
@@ -241,14 +78,14 @@ Example:
 - Natural sciences:
   - **Precise predictions** from controlled experiments.
 - Finance:
-  - **Human behavior** → Noisy real-world data.
+  - **Human behavior** → Noisy real- world data.
   - **Market efficiency** makes predictions difficult.
 
 **Example Comparisons**:  
 
 1. **NASA’s Wilkinson Microwave Anisotropy Probe**  
    - Cosmic background radiation **measured with extreme precision**.  
-2. **Risk-Return Relationship in Stock Markets**  
+2. **Risk- Return Relationship in Stock Markets**  
    - Financial models (e.g., Capital Asset Pricing Model) show **high variability**.  
 
 ---
@@ -258,7 +95,7 @@ Example:
 - Efficient Market Hypothesis (EMH):  
   - **Stock prices reflect all available information**.  
   - Future price changes **unpredictable**.  
-  - **Accurate predictions self-destruct** (new info immediately priced in).  
+  - **Accurate predictions self- destruct** (new info immediately priced in).  
 
 Samuelson's summary:  
 > “Properly anticipated prices fluctuate randomly.”  
@@ -275,7 +112,7 @@ Samuelson's summary:
 ### **1. Time Value of Money**
 
 - **Money now is worth more than money later**.  
-- Expressed in the **risk-free interest rate**.  
+- Expressed in the **risk- free interest rate**.  
 - Reasons:  
   1. **Time preference (human impatience)** – Preference for immediate consumption.  
   2. **Investment opportunities** – Sacrificing consumption today allows for higher future returns.  
@@ -296,21 +133,21 @@ Samuelson's summary:
     - Year 3: €133.10  
 
   **Formula**:  
-  $FV_T = PV (1 + r)^T$
+ $FV_T = PV (1 + r)^T$
   - **FV**: Future Value
   - **PV**: Present Value  
   - **r**: Interest rate  
   - **T**: Number of periods  
 
 - **Discounting**: Moving money back in time.  
-  $PV = \frac{FV_T}{(1 + r)^T}$
+ $PV = \frac{FV_T}{(1 + r)^T}$
 
 ---
 
 ### **3. Compounding Frequency**
 
 - Interest can be compounded **more frequently** than annually:  
-  - **Semi-annual** (twice per year)  
+  - **Semi- annual** (twice per year)  
   - **Quarterly** (four times per year)  
   - **Continuous**  
 
@@ -327,12 +164,12 @@ where **e ≈ 2.718** (Euler’s number).
 ### **4. Logarithmic Returns**
 
 - **Continuously compounded returns**:  
-  $\ln\left(\frac{S_T}{S_0}\right) = rT$
-  where $S_n$ is daily stock price on day **n**
+ $\ln\left(\frac{S_T}{S_0}\right) = rT$
+  where$S_n$is daily stock price on day **n**
 - **Advantages**:  
   - **Additive over time**: Weekly return = sum of daily returns.
     - $\ln\left(\frac{S_1}{S_0}\times \frac{S_2}{S_1} \right) = \ln\left( \frac{S_1}{S_0}\right) + \ln\left(\frac{S_2}{S_1} \right) = \ln e^{r_1} + \ln e^{r_2} = r_1 + r_2$
-  - **Not additive across investments** (log transformation is non-linear).  
+  - **Not additive across investments** (log transformation is non- linear).  
 
 ---
 
@@ -341,19 +178,19 @@ where **e ≈ 2.718** (Euler’s number).
 - **Annuity**: Series of payments for **finite** years.  
   - Example: Retirement pension.  
   - **Formula for present value**:  
-    $
-    PV = A \times \left(\frac{1 - (1 + r)^{-n}}{r}\right)
-    $
+   $
+    PV = A \times \left(\frac{1 - (1 + r)^{- n}}{r}\right)
+   $
 - **Perpetuity**: Infinite payments ($n\rightarrow \infty$).  
   - Example: University endowments.  
   - **Formula**:  
-    $
+   $
     PV = \frac{A}{r}
-    $
+   $
 - **Growing perpetuity (Gordon Growth Model)**:  
-  $
+ $
   PV = \frac{A}{r - g}
-  $
+ $
   where **g** is growth rate
 
 ---
@@ -361,20 +198,20 @@ where **e ≈ 2.718** (Euler’s number).
 ### **6. Risk and Valuation**
 
 - **Value** = **Discounted sum of future cash flows**:  
-  $
+ $
   Value = \sum \frac{Exp[\text{Cash Flow}_t]}{(1 + \text{discount rate}_t)^t}
-  $
+ $
 - **Three Approaches to Handle Risk**:  
-  1. **Risk-adjusted discount rate**  
+  1. **Risk- adjusted discount rate**  
   2. **Certainty equivalent cash flows**  
-  3. **Risk-neutral probabilities** (used in option pricing).  
+  3. **Risk- neutral probabilities** (used in option pricing).  
 
 ---
 
 ### **7. Course Benefits**
 
 - **Financial literacy**:  
-  - Understand Nobel-winning finance concepts.  
+  - Understand Nobel- winning finance concepts.  
   - Evaluate investments & financial products.  
 - **Practical skills**:  
   - Assess risk.  
@@ -413,7 +250,7 @@ where **e ≈ 2.718** (Euler’s number).
   - €1 today is worth more than €1 tomorrow.  
   - A safe €1 is worth more than a risky €1.  
 - **Future value & Present value**  
-- **Risk-free rate**  
+- **Risk- free rate**  
 - **Discounting & Compounding**  
 - **Annuities and Perpetuities**  
 
@@ -433,7 +270,7 @@ where **e ≈ 2.718** (Euler’s number).
 
 ### **Discounting in Investment Analysis**
 
-- **Key financial decision-making tool**  
+- **Key financial decision- making tool**  
 - **Project evaluation example (ZX Co.)**:  
   - Investment of €195M  
   - Sales revenue: €250M, €500M, €250M over 3 years  
@@ -472,7 +309,7 @@ where **e ≈ 2.718** (Euler’s number).
 - **Economic depreciation**: Change in project value over time.  
 - **Risk aversion**:  
   - People prefer certainty over risk.  
-  - **Utility function** explains decision-making.  
+  - **Utility function** explains decision- making.  
   - **Concave utility functions** → Diminishing marginal utility.  
 - **Indifference Curves**  
   - Represent combinations of choices with the same utility.  
@@ -481,7 +318,7 @@ where **e ≈ 2.718** (Euler’s number).
 
 ### **Fisher's Investment Analysis**
 
-- **Financial markets allow better decision-making**.  
+- **Financial markets allow better decision- making**.  
 - **Without financial markets**:  
   - Investment decisions depend on personal preferences.  
 - **With financial markets**:  
@@ -530,7 +367,7 @@ where **e ≈ 2.718** (Euler’s number).
 3. **Place an order**:  
    - **Limit order** (price control, not always executed).  
    - **Market order** (executed at best available price).  
-   - **Stop-loss order** (sell automatically at a set price).  
+   - **Stop- loss order** (sell automatically at a set price).  
 4. **Order Execution**  
    - Broker checks account.  
    - Order sent to market.  
@@ -540,9 +377,9 @@ where **e ≈ 2.718** (Euler’s number).
 
 ### **Key Takeaways**
 
-- **Investment analysis** relies on NPV for decision-making.  
+- **Investment analysis** relies on NPV for decision- making.  
 - **Financial markets** enable efficient allocation of resources.  
-- **Risk aversion** impacts decision-making.  
+- **Risk aversion** impacts decision- making.  
 - **Financial intermediaries** improve market efficiency.  
 - **Stock trading** involves brokers, clearing houses, and order types.  
 
@@ -555,7 +392,7 @@ where **e ≈ 2.718** (Euler’s number).
 - Two basic rules:
   - €1 today is worth more than €1 tomorrow.
   - A safe €1 is worth more than a risky €1.
-- Time value of money, risk-free rate, discounting, and compounding.
+- Time value of money, risk- free rate, discounting, and compounding.
 - Introduction to accounting: Income statement & Balance sheet.
 - Investment analysis and decision criteria.
 - Utility and risk aversion: Combining risky choices reduces risk.
@@ -579,45 +416,45 @@ where **e ≈ 2.718** (Euler’s number).
 - **Ways to express risk:**
   - Security prices in financial markets.
   - Returns, calculated as:
-    $
+   $
     r_{it} = \frac{P_{i,t+1} - P_{i,t} + \text{Div}_{t+1}}{P_{it}}
-    $
+   $
   - Distributional properties of returns.
 
 ### Measuring Risk
 
 - **Standard deviation and variance:** Common measures of dispersion.
-  - Historical vs. forward-looking variance.
+  - Historical vs. forward- looking variance.
   - Disadvantages: Treats up/down deviations equally, ignores skewness/kurtosis.
 - **Portfolio risk calculation:**
   - Portfolio risk is often lower than individual asset risks.
   - **Expected return of a portfolio**:
-    $
+   $
     E [r_p] = \sum_{i=1}^{I} x_i E[r_i]
-    $
+   $
   - **Portfolio variance:**
-    $
+   $
     \sigma^2_p = \sum_{i=1}^{I} x_i^2 \sigma^2_i + 2 \sum_{i \neq j} x_i x_j \sigma_{ij}
-    $
+   $
   - **Diversification effect:** Covariances influence portfolio risk.
 
 ### Covariance and Correlation
 
 - **Covariance formula:**
-  $
+ $
   \sigma_{ij} = \sum_{n=1}^{N} \pi_n (r_{ni} - E[r_i]) (r_{nj} - E[r_j])
-  $
+ $
 - **Correlation coefficient:**
-  $
+ $
   \rho_{ij} = \frac{\sigma_{ij}}{\sigma_i \sigma_j}
-  $
+ $
 - Lower correlation leads to higher diversification benefits.
 
 ### Efficient Portfolios
 
-- **Markowitz Model (1952):** Investors should optimize for risk-adjusted returns.
-- **Capital Market Line (CML):** The optimal risk-return trade-off when risk-free assets exist.
-- **Market Portfolio:** All investors hold a combination of the risk-free asset and the market portfolio.
+- **Markowitz Model (1952):** Investors should optimize for risk- adjusted returns.
+- **Capital Market Line (CML):** The optimal risk- return trade- off when risk- free assets exist.
+- **Market Portfolio:** All investors hold a combination of the risk- free asset and the market portfolio.
 
 ---
 
@@ -627,20 +464,20 @@ where **e ≈ 2.718** (Euler’s number).
 
 - James Tobin (1958): Optimal portfolios consist of:
   1. A unique risky asset combination.
-  2. Allocation between the risky portfolio and a risk-free asset.
-- **Key insight:** Risk-free lending/borrowing changes the efficient frontier.
+  2. Allocation between the risky portfolio and a risk- free asset.
+- **Key insight:** Risk- free lending/borrowing changes the efficient frontier.
 
 ### Market Equilibrium
 
-- **Efficient portfolio M:** Investors hold a mix of M and risk-free assets.
+- **Efficient portfolio M:** Investors hold a mix of M and risk- free assets.
 - **Market portfolio:** All risky assets held in market value proportions.
 
 ### Capital Asset Pricing Model (CAPM)
 
 - **CAPM equation:**
-  $
+ $
   E [r_i] = r_f + \beta_i (E [r_m] - r_f)
-  $
+ $
 - **Beta ($\beta$) interpretation:**
   - **Systematic risk:** Risk that cannot be diversified away.
   - **Measured as:** Sensitivity of stock returns to market returns.
@@ -653,7 +490,7 @@ where **e ≈ 2.718** (Euler’s number).
   - **Second pass:** Test whether expected returns align with CAPM predictions.
 - **Findings:**
   - CAPM predicts linear relation between return and beta.
-  - Empirical data shows some deviations (e.g., low-beta stocks have higher returns than predicted).
+  - Empirical data shows some deviations (e.g., low- beta stocks have higher returns than predicted).
 
 ### Alternative Models: Arbitrage Pricing Theory (APT)
 
@@ -661,9 +498,9 @@ where **e ≈ 2.718** (Euler’s number).
   - **APT:** Multiple risk factors influence returns.
   - **CAPM:** Market risk is the only relevant factor.
 - **APT formula:**
-  $
+ $
   E [r_i] = r_f + \sum_{k} \lambda_k b_{ik}
-  $
+ $
 - **Empirical applications:** APT often explains asset prices better than CAPM.
 
 ---
@@ -674,9 +511,9 @@ where **e ≈ 2.718** (Euler’s number).
 
 - **Definition (Fama, 1970):** Market prices fully reflect available information.
 - **Forms of Efficiency:**
-  1. **Weak-form:** Prices reflect all past market data (no predictable patterns).
-  2. **Semi-strong:** Prices reflect all publicly available information (no advantage in fundamental analysis).
-  3. **Strong-form:** Prices reflect all information, including private (no insider trading advantage).
+  1. **Weak- form:** Prices reflect all past market data (no predictable patterns).
+  2. **Semi- strong:** Prices reflect all publicly available information (no advantage in fundamental analysis).
+  3. **Strong- form:** Prices reflect all information, including private (no insider trading advantage).
 
 ### Implications of EMH
 
@@ -693,20 +530,330 @@ where **e ≈ 2.718** (Euler’s number).
   - Herding behavior: Following market trends blindly.
 - **Empirical findings:**
   - Momentum effect: Stocks that performed well continue performing well.
-  - Value effect: Stocks with high book-to-market ratios tend to outperform.
+  - Value effect: Stocks with high book- to- market ratios tend to outperform.
 
 ### Testing Market Efficiency
 
 - **Empirical evidence:**
-  - Short-term price movements are random (supports weak-form EMH).
-  - Some anomalies persist (challenges semi-strong form).
-  - Insiders often outperform (challenges strong-form efficiency).
+  - Short- term price movements are random (supports weak- form EMH).
+  - Some anomalies persist (challenges semi- strong form).
+  - Insiders often outperform (challenges strong- form efficiency).
 - **Market anomalies:**
   - January effect: Stocks tend to rise in January.
-  - Small firm effect: Small-cap stocks tend to outperform.
+  - Small firm effect: Small- cap stocks tend to outperform.
 
 ### Conclusion
 
 - Market efficiency is largely supported, but some persistent anomalies exist.
 - Behavioral finance challenges pure EMH assumptions.
-- Investors should focus on diversified portfolios and long-term strategies.
+- Investors should focus on diversified portfolios and long- term strategies.
+
+## Finance for Science and Technology Students - Chapter 5: Capital Structure
+
+### 1. Dimensions of Securities
+
+- **Riskiness**
+  - Profit- dependent: Low priority, no upper limit.
+  - Predetermined: High priority, fixed maximum.
+  - Default risk: Possibility of not recovering investment.
+
+- **Maturity**
+  - Short- term, long- term, or permanent.
+
+- **Property Rights**
+  - **Equity:** Ownership + control.
+  - **Liabilities:** Creditor status, priority claims.
+
+- **Other classifications**
+  - Deposited vs. promised.
+  - Primary vs. secondary markets.
+  - Secured vs. unsecured.
+  - Derivatives: Options, futures, swaps.
+
+### 2. Capital Structure Analysis
+
+- **Definition**: Combination of debt and equity used to finance operations.
+- **Relevance**:
+  - Influences cost of capital and capital budgeting.
+  - Affects firm's financial flexibility and valuation.
+
+#### Modigliani- Miller Theorem (1958)
+
+- **Proposition 1:** Capital structure is irrelevant in perfect capital markets.
+  - Arbitrage ensures firm value remains the same regardless of leverage.
+- **Proposition 2:** Cost of equity increases with leverage.
+  - Equity holders require higher returns due to increased risk.
+  
+- **Market Imperfections that Affect Capital Structure**:
+  - Taxes (interest is deductible).
+  - Bankruptcy costs.
+  - Agency costs (conflict between managers and shareholders).
+  - Information asymmetry.
+
+### 3. Trade- Off Theory vs. Pecking Order Theory
+
+- **Trade- Off Theory**
+  - Firms balance tax benefits of debt against bankruptcy costs.
+  - Optimal debt ratio exists.
+
+- **Pecking Order Theory**
+  - Firms prefer internal financing > debt > external equity.
+  - New equity issuance signals negative information.
+
+### 4. Weighted Average Cost of Capital (WACC)
+  
+$
+WACC = \frac{E}{V} r_e + \frac{D}{V} r_d (1 - \tau)
+$
+
+- $E$= Equity Value,$D$= Debt Value,$V$= Total Value.
+- $r_e$= Cost of Equity,$r_d$= Cost of Debt,$\tau$= Tax Rate.
+- **WACC decreases with debt up to an optimal point**, after which bankruptcy costs rise.
+
+---
+
+## Chapter 6 - Valuing Levered Projects
+
+### 1. Levering and Unlevering
+
+- **Unlevered Equity**: No debt, all cash flows go to shareholders.
+- **Levered Equity**: Firm issues debt, reducing equity requirements.
+
+### 2. Project Valuation with Debt
+
+- **Net Present Value (NPV)**:
+
+$
+NPV = \sum \frac{Cash \ Flow_t}{(1+r)^t} - Initial \ Investment
+$
+
+- **Adjusting Discount Rates for Debt**:
+  - Higher debt → Lower WACC due to tax shields.
+  - Riskier projects → Higher cost of equity.
+
+#### **Example: NPV with Different Debt Ratios**
+
+- 100% equity: Discount cash flows at cost of equity.
+- 50% debt: Discount at WACC, including tax shield.
+
+### 3. Adjusted Present Value (APV)
+  
+$
+APV = NPV_{unlevered} + PV(Tax\ Shields)
+$
+
+- Used when debt levels change over time.
+- Separates tax benefits of debt from core project value.
+
+### 4. Miles- Ezzell Adjustment for WACC
+
+$
+WACC = r_a - \frac{D}{V} r_d \tau \left(\frac{1+r_a}{1+r_d} \right)
+$
+
+- Adjusts for firms that rebalance debt periodically.
+
+### 5. Valuing Projects with Different Debt Ratios
+
+- **Stepwise WACC Adjustment**:
+  1. Unlever cost of capital from similar firms.
+  2. Adjust for firm- specific debt level.
+  3. Compute project WACC.
+
+- **Debt Rebalancing Methods**:
+  - Continuous: MM formulas apply.
+  - Periodic: Miles- Ezzell adjustment needed.
+
+---
+
+These notes provide a structured summary of the key topics from Chapters 5 and 6.
+
+## Chapter 7 - Options as Securities
+
+### 1. Option Characteristics
+
+- **Definition**: Financial contracts giving the holder the *right*, but not the *obligation*, to buy or sell an asset at a pre- determined price on or before a specific date.
+  
+- **Key Types**:
+  - **Call Option**: Right to **buy** an asset.
+  - **Put Option**: Right to **sell** an asset.
+  
+- **Exercise Style**:
+  - **European Option**: Can be exercised **only at maturity**.
+  - **American Option**: Can be exercised **any time** before or on maturity.
+
+### 2. Key Terminology
+
+- **Strike Price (Exercise Price)**: The fixed price at which the holder can buy/sell the underlying asset.
+- **Option Premium**: The price paid to acquire the option.
+- **Moneyness**:
+  - **In the Money (ITM)**: Option has intrinsic value (e.g., call: spot > strike).
+  - **At the Money (ATM)**: Spot price = Strike price.
+  - **Out of the Money (OTM)**: Option has no intrinsic value (e.g., call: spot < strike).
+
+### 3. Option Payoffs
+
+- **Call Option Payoff**:
+
+$
+\text{Payoff (Call)} = \max(S_T - X, 0)
+$
+
+- **Put Option Payoff**:
+
+$
+\text{Payoff (Put)} = \max(X - S_T, 0)
+$
+
+Where:
+
+- $S_T$= Underlying asset price at maturity.
+- $X$= Strike price.
+
+### 4. Option Strategies
+
+1. **Simple Positions**:
+    - **Long Call**: Right to buy; profit if the price rises.
+    - **Short Call**: Obligation to sell; profit if price remains below the strike.
+    - **Long Put**: Right to sell; profit if the price drops.
+    - **Short Put**: Obligation to buy; profit if price remains above the strike.
+
+2. **Combined Positions**:
+    - **Straddle**: Buy a call and put with the same strike—profits from **volatility**.
+    - **Bull Spread**: Long a lower strike call, short a higher strike call—profits from **moderate price increases**.
+    - **Bear Spread**: Long a higher strike put, short a lower strike put—profits from **moderate price declines**.
+
+### 5. Put- Call Parity (European Options)
+
+$
+C - P = S - PV(X)
+$
+
+Where:
+
+- $C$= European call price.
+- $P$= European put price.
+- $S$= Current stock price.
+- $PV(X)$= Present value of the strike price.
+
+### 6. Arbitrage Bounds on Option Prices
+
+1. **Upper Bound**:
+   - **Call Option**:$C \leq S$
+   - **Put Option**:$P \leq X$
+
+2. **Lower Bound** (European Options, no dividends):
+   - **Call**:$C \geq \max(0, S - PV(X))$
+   - **Put**:$P \geq \max(0, PV(X) - S)$
+
+---
+
+## Chapter 7 - Foundations in State- Preference Theory
+
+### 1. General Valuation Formula
+
+$
+\text{Value} = \sum_t \frac{\mathbb{E}[\text{Cash Flows}_t]}{(1 + r_t)^t}
+$
+
+Where:
+
+- $r_t$= Discount rate.
+- $\mathbb{E}$= Expectation under appropriate probability.
+
+### 2. State- Preference Theory
+
+- **States of the World**: Future economic scenarios with distinct payoffs.
+- **State Prices**: The present value of receiving$1 in a specific state.
+- **Arrow- Debreu Securities**: Pay$1 in a specific state and$0 otherwise.
+
+### 3. Risk- Free and State Securities
+
+- A **risk- free security** pays **1** in every state.
+  
+- For **state securities**:
+
+$
+\Psi \mathbf{x} = \mathbf{I}
+$
+
+Where:
+
+- $\Psi$= Payoff matrix.
+- $\mathbf{x}$ = Portfolio weights.
+- $\mathbf{I}$ = Identity matrix.
+
+- **Risk- Free Rate**:
+
+$
+r_f = \frac{1}{\sum \mathbf{v} \times \mathbf{x}}
+$
+
+Where:
+
+- $\mathbf{v}$= Price vector of existing securities.
+
+### 4. Market Completeness and Arbitrage
+
+- **Complete Market**: Every possible payoff pattern can be replicated.
+- **Arbitrage- Free Market**: No strategy provides:
+    1. Positive profit now with zero risk.
+    2. Zero cost with non- negative future payoffs.
+
+### 5. Arbitrage Theorem
+
+For no- arbitrage:
+
+$
+\mathbf{v} = \Psi \mathbf{\psi}
+$
+
+Where:
+
+- $\mathbf{v}$ = Price vector.
+- $\Psi$= Payoff matrix.
+- $\mathbf{\psi}$= State price vector.
+
+### 6. Risk- Neutral Valuation
+
+- **Definition**: Prices are calculated under a **risk- neutral measure**, where all assets earn the **risk- free rate**.
+
+$
+S_0 = \frac{\mathbb{E}_\mathbb{Q}[S_T]}{(1 + r_f)^T}
+$
+
+Where:
+
+- $\mathbb{Q}$= Risk- neutral probabilities.
+
+### 7. Martingale Property
+
+Under risk- neutral probabilities:
+
+$
+S_t = \frac{\mathbb{E}_\mathbb{Q}[S_{t+1}]}{(1 + r_f)}
+$
+
+- **Interpretation**: Expected future discounted prices equal today’s price.
+
+### 8. Pricing Kernel
+
+- The pricing kernel$m$adjusts real probabilities to risk- neutral probabilities:
+
+$
+\psi_i = p_i m_i
+$
+
+Where:
+
+- $\psi_i$= State price.
+- $p_i$= Real probability.
+- $m_i$= Marginal utility in state$i$.
+
+### 9. No- Arbitrage Conditions
+
+The following are equivalent:
+
+1. Positive **state prices** exist.
+2. An **equivalent martingale measure** exists.
+3. A **positive pricing kernel** exists.

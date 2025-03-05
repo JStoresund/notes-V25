@@ -1819,3 +1819,552 @@
     - Suited for corporate environments with shared trust (public variants still exist)
     - Offline password guessing is possible attack when client key $K_C$ is derived from human memorable password
     - Kerberos standard does not specify how to use session key once established
+
+## Transport Layer Security (TLS)
+
+- Cryptographic tool designed to provide security over computer network
+- Probably most widely used security protocol in use today
+- Used to secure communication with banks, online shops, email providers and more
+- Uses mainstream cryptographic algorithms
+- Very complex algorithm
+- Overview
+  - Some historic points (in slides if interesting)
+- TLS 1.2 vs 1.3
+  - TLS 1.3 standardized in 2018
+  - Significant differences
+  - 1.2 still most widely deployed today
+- Uses
+  - Cryptographic service protocol based on PKI and commonly used on internet
+  - Often used to allow browsers secure connections with web servers
+  - Many other applications too
+- TLS architecture overview
+  - Two layers of protocols
+  - Consists of 3 higher level protocols
+    - TLS handshake to set up sessions
+    - TLS alert protocol to signal events, like failures
+    - TLS change cipher spec protocol to change cryptographic algorithm
+  - TLS record protocol provides basic services to various higher level protocols
+- TLS protocol stack
+  - ![alt text](image-26.png)
+  - TLS alert
+    - Handles connections, by sending "alert" messages of varying degrees of severity
+    - 3 types of alerts
+      - Warning
+      - Close_notify
+      - Fatal
+    - Improper handling of alerts can lead to truncation attacks
+  - TLS change cipher spec
+    - Normally used after handshake to indicate commencement of secure traffic
+  - TLS record
+    - Provides 2 services for higher-level protocols
+      - Message confidentiality
+      - Messge integrity
+      - Can be provided by symmetric encryption algorithm and MAC
+      - From TLS 1.2, provided with authed encryption with associated data, modes CCM or GCM
+    - Handshake protocol establishes symmetric keys (session keys) to use with these mechanisms
+    - Format
+      - ![alt text](image-27.png)
+      - Content type
+        - Change-cipher-spec
+        - Alert
+        - Handshake
+        - Application-data
+      - Protocol version
+        - Major version: 3 for TLS
+        - Minor version: 1 for TLS 1.0, 2 for TLS 1.1, 3 for TLS 1.2
+      - Length
+        - Length in octets of the data
+    - Operation
+      - Fragmentation: each app layer message fragemented into blocks of $2^{14}$B or less
+      - Compression: optionally applied (default no compression alg)
+      - Authed data: (compressed) data, header, implicit record sequence number
+      - Plaintext: compressed data and MAC, if present
+      - Session keys for MAC and encryption algs, or AEAD alg, established during handshake protocol
+      - Encryption and MAC alg specified in negotiation ciphersuite
+    - Record protocol cryptographic algorithm
+      - MAC
+        - HMAC in all TLS versions using negotiated hash function
+        - SHA-2 allowed only from TLS 1.2
+      - Encryption
+        - Either negotiated block cipher in CBC mode or strema cipher
+        - Most common blocks are AES and 3DES
+        - RC4 originally supported in TLS 1.2
+        - Block ciphers: padding applied after MAC to make multiple of cipher block size
+      - AEAD
+        - Allowed instead of encryption and MAC in TLS 1.2
+        - Usually AES in CCM or GCM
+        - Authed additional data is header and implicit record sequence number
+  - TLS handshake
+    - Purpose
+      - Negotiates version of TLS and cryptographic algorithms to be used
+      - Establishes shared session key for use in record protocol
+      - Authenticates server
+      - Authenticates user
+      - Completes session establishment
+      - Several variations
+        - RSA (still supported but not recommended)
+        - Diffie-Hellman (recommended)
+        - Pre-shared key variant
+        - Mutual auth over server-only auth
+    - 4 phases
+      - Phase 1: initiates logical connection and establishes security capabilities
+      - Phases 2 and 3: Perform key exchange with messages and message content depending on handshake variant negotiation in phase 1
+      - Phase 4: Completes setting up secure connection
+    - Phase 1
+      - Client and server negotiate version, cipher suite and compression and exchange nonces
+    - Phase 2
+      - Server sends certificate and key exchange message (if needed)
+    - Phase 3
+      - Client sends certificate and key exchange message
+    - Phase 4
+      - Client and server start secure communication
+      - Finished messages includes check value (pseudo-random function) of all previus messages
+    - RSA-based handshake protocol
+      - Simplest variation with server-only auth and public server key for RSA encryption
+      - RSA-based key exchange selected in phase 1
+    - Main handshake messages
+      - *Client hello*: States highest version of TLS available, advertises ciphersuites available to client and sends client nonce $N_C$
+      - *Server hello*: Returns selected version and ciphersuite and sends server nonce $N_S$
+      - *Server key exchange*: Server's input to key exchange
+      - *Client key exchange*: Client's input to key exchange
+      - *Change-cipher-spec*: Switch to newly negotiated ciphersuite for record layer
+    - Ephermeral Diffie-Hellman handshake protocol
+      - Server key exchange: DH generator and group parameters and serve ephemeral DH value, all signed by server
+      - Client key exchange: Client ephemeral DH value, optionally signed by client if client certificate is used
+      - Pre-master secret *pms* is shared DH secret
+      - Provides forward secrecy and therefore recommended today!
+    - RSA handshake variant
+      - Server key exchange: not used
+      - Client key exchange: Key transport of pre-master secret *pms*
+        - Client selects random pre-master secret (*pms*)
+        - Client encrypts *pms* with server's public key and sends to server
+        - Server decrypts using private key
+      - No forward secrecy and not recommended today
+    - Generating session keys
+      - Master secret, *ms*, is defined using pre-master secret as $ms = PRF(pms, \text{"master secret"}, N_C || N_S)$
+      - As much key material as needed generated as is required by ciphersuite using $k = PRF(ms, \text{"key expansion"}, N_S || N_C)$
+      - Independent session keys separated from $k$ in each direction (write key and read key on each side)
+      - Depending on ciphersuite, key may include
+        - Encryption key
+        - MAC key
+        - IV
+      - Pseudo-random function $PRF$
+        - Built from HMAC with specified MAC function
+          - PRF in TLS 1.0 and 1.1 based on combination of MD5 and SHA-1
+          - In TLS 1.2 PRF based on SHA-2
+        - Example in TLS 1.2: $PRF(K, label, r) = HMAC(K, A(1) || label || r)\space || \space HMAC(K, A(2) || label || r) || \dots$
+          - $A(0)=r, A(i)=HMAC(K, A(i-1))$
+          - HMAC uses specified SHA-2 variant, typically SHA-256, hash function $r$ is seed
+    - Other handshake variants
+      - Diffie-Hellman
+        - Static DH with certified keys
+        - If client has no certificate (usual on internet), client uses ephemeral DH key
+      - Anonymous Diffie-Hellman
+        - Ephermeral DH key not signed at all
+        - Only protects against passive eacesdropping
+      - Above methods possible but not recommended today
+    - Forward secrecy
+      - Compromise of long-term keys should not lead to compromise of session keys before long-term key compromise took place
+      - Typical way to achieve forward secrecy if DH key exchange with exchange auth using signatures from long-term keys
+      - Using RSA-based handshake in TLS does not achieve forward secrecy but is currently used in many ciphersuites
+      - Several ciphersuites using DH, including EC DH are defined for TLS which procide forward secrecy
+    - SSL and TLS limitations
+      - Higher layers should not be overly reliant on SSL or TLS always negotiating strongest possible connection between 2 peers
+      - Several ways man-in-the-middle can attempt to make 2 entities drop down to least secure method they support
+        - Downgrade attack
+      - Example attacker can block access to a port running service, to make peers negotiate on unauthed connection
+  - TLS protocol summary
+    - 2 main protocols
+      - Handshake and Record Layer
+    - New versions rolled out as understanding of cryptography and potential attack increase
+    - Backward compatibility is a problem
+      - SSL 3.0 deprecated in 2015
+      - TLS 1.0 more than 20 years old and still widely supported
+    - TLS assumes reliable delivery messages, provided by TCP
+  - TLS limitations
+    - Many practical attacks on TLS in the past few years
+    - Many servers do not support the latest TLS version and/or have not protected against known attacks
+    - *SSL pulse survey* gives up-to-date picture of current attacks
+    - Some previous attacks
+      - Browser Expoit Against SSL/TLS (BEAST) attack
+        - Expoits non-standard use of IV in CBC mode
+        - IVs chained from previous ciphertexts
+        - Allows attacker to recover plaintext byte by byte
+        - From TLS 1.1 random IV allowed
+        - Most browsers now implement mitigation strategy based on splitting plaintext into first byte + remainder to force randomized IV including MAC computation
+        - No longer considered realisic threat
+      - CRIME and BREACH attacks
+        - Side channels attacked based on compression - different inputs result in different length of compression
+        - Compression Ratio Info-leak Made Easy (CRIME) exploits compression in TLS
+        - Browser Reconnaissance and Exfiltration via Adaptive Compression of Hypertext (BREACH) exploits compression in HTTP
+        - Commonly recommended to switch off compression in TLS
+        - Switching off compression in HTTP results in big performance penalty
+      - Padding oracle and POODLE attack
+        - Padding oracle = attacker can check whether message in ciphertext is correctly padded
+        - CBC mode necryption can provide padding oracle due to error prpagation properties
+        - Applied to TLS for variety of attacks
+        - Main mitigation is uniform error response, so attacker can distinugish padding errors from MAC errors
+        - Padding Oracle On Downgraded Legacy Encryption (POODLE) forces downgrade to SSL 3.0 and runs padding oracle attack
+      - Heartbleed bug
+        - Implementation error in OpenSSL
+        - Based on missing bound check in *heartbeat* messages
+        - Allows memory leakage from server which is likely to include session keys and long-term keys
+      - TLS timing (padding) oracle attack
+        - Dubbed "Lucky 13"
+        - Timing bug in TLS data decryption when using standard CBC mode
+        - Right set of circumstances, attacker can completely decrypt sensitive information, like passwords and cookies
+        - Borderline practical in DTLS, more theoretical in TLS
+        - The attack
+          - Always encrypt message first, then apply MAC to resulting ciphertext
+          - TLS gets this backwards
+          - Upon encrypting record
+            - Sender first applies MAC to plaintext
+            - Then adds up to 255B padding to get message to multiple of cipher block size
+            - Then CBC-encrypt record
+            - Padding id **not** protected by MAC
+          - Attacker can flip certain bits in ciphertext to tamper with padding, leading to padding oracle attack
+          - If attacker learns whether the changes affects the padding, they can use the information to adaptively decrypt the whole record
+        - These types of attacks were known to TLS designers
+        - Instead of fixing it, they patched it by eliminating error messages that could indicate the padding check failed
+        - Still possible to use padding attack!
+          - Time how long decryption took, deduce whether there was padding error
+          - Implementations would first check padding, then return immediately if this failed
+        - TLS 1.2: if pad appears to be incorrect, implementation might assume zero-length pad and compute MAC
+        - When padding fails, decyptor does not know much padding to strip off
+        - Meaning it does not know how much data to MAC
+        - Recommended countermeasure is to assume no padding, then MAC the whole blob
+          - MAC computations can take longer when padding is damaged
+        - Leaves small timing attack, which is barely distinguishable from short distances due to advances in computer hardware
+- TLS ciphersuite
+  - Specify public key algorithms used in the handshake protocol and symmetric algorithms used in record protocol
+  - Over 300 standardized ciphersuites, many no longer used
+  - Example: "TLS_RSA_WITH_3DES_EDE_CBC_SHA"
+    - Key exchange uses RSA to encrypt secret chosen by client
+    - Triple DES in CBC mode used for encryption
+    - SHA-1 used for HMAC data integrity
+  - Common TLS 1.2 ciphersuites
+    - Handshake algorithms
+      - *DHE-RSA*: ephemeral DH with RSA signatures
+      - *ECDHE-RSA*: elliptic curve DHE with RSA signatures
+      - *DHE-DSS*: DHE with DSS signature
+    - Record algorithms
+      - *AES-GCM*: AES authed encryption with GCM mode
+      - *AES-CBC-SHA256*: AES in CBC mode with HMAC from SHA-256
+      - *CHACHA20-POLY1305*: ChaCha stream cipher with Poly1305 MAC
+
+### TLS 1.3
+
+- TLS 1.3 is newest version of TLS
+- Significant changes from previous versions affecting security and efficiency
+- IPsec provides similar services, but at lower level in protocol stack
+  - TLS operates in application layer
+  - IPsec operates in network layer
+- Why TLS 1.3?
+  - Efficiency: earlier versions need at least 2 RTTs before data can be sent
+  - Security: Many security issues in earlier versions
+    - Protocol too complex
+    - Protocol supported als and weak ciphersuites
+  - TLS 1.3 aims to provide *provable security*
+  - Today supported in around 66% of popular web servers
+- Changes from TLS 1.2 to 1.3
+  - Removed:
+    - Static RSA and DH key exchange
+    - Renegotiation
+    - SSL 3.0 negotiation
+    - DSA in finite fields
+    - Data compression
+    - Non-AEAD cipher suites
+  - Added:
+    - 0-RTT mode from pre-shared keys
+    - Post-handshake client auth through "certificate verify" signature
+    - More AEAD ciphersuites
+- TLS 1.3 handshake protocol
+  - Hello messages
+    - Client sends keyshare field in client hello for one or more anticipated ciphersuites
+    - Server can obtain session key on receipt of client hello of:
+      - Server accepts one of the ciphersuites
+      - Client heyshare matches accepted ciphersuite
+    - If above conditions fail:
+      - Server sends optional Helo Rerty Request
+      - Client responds if there is acceptable alternative ciphersuite
+    - Usually this reuults in saving a whole round trip of communication
+  - Other messages
+    - One client and server hello/keyshare messages are not cryptographically protected
+    - All later communication uses handshake traffic keys
+    - Key calculation now uses standard *Hash Key Derivation Function (HKDF)* to derive individual keys instead of ad hoc PRF
+    - Several different key types derived from master secret
+      - *Handshake traffic keys*: protect handshake protocol
+      - *Application traffic keys*: client-server traffic
+      - *Early data keys*: 0-RTT data
+    - Various 'tricks' used to allow interoperability with devices that only allow previous versions of TLS
+    - ![alt text](image-28.png)
+- Client authentication
+  - In both 1.2 and 1.3 optional for client to send certificate using "CertificateVerify" message
+    - Includes signature which can be verified using public key in the certificate
+  - 1.3 adds *post-handshake client authentication* extention
+    - If used server may request client auth at any time after handshake completed
+    - Client responds with and signature in the form of "CertificateVerify"
+- 0-RTT in TLS 1.3
+  - Parties can start sending application data immediately (early data)
+  - Based on pre-shared key (PSK)
+  - PSK can be either agreed outside TLS or from earlier TLS session
+  - At end of handshake server can send client one or more new session tickets as PSKs
+  - Client may start new PSK session without negotiating version and ciphersuite
+  - Pre-shared key used to auth DH
+  - Early data optional and lacks forward secrecy
+  - ![alt text](image-29.png)
+- TLS 1.3 ciphersuites
+  - Handshake always uses DH option so ciphersuite only needs to specify
+    - Which AEAD cipher to use in record layer
+    - Hash function to use for KDF
+  - TLS 1.2 and lower ciphersuite values cannot be used with TLS 1.3 and vice versa
+  - Mandatory to implement ciphersuite TLS_AES_128_GCM_SHA256
+  - Other recommended alternatives:
+    - TLS_AES_256_GCM_SHA384
+    - TLS_CHACHA20_POLY1305_SHA256
+    - TLS_AES_128_CCM_SHA256
+    - TLS_AES_128_CCM_8_SHA256
+- ChaCha algorithm
+  - Stream cipher defined together with MAC called Poly1305
+  - Faster than AES, unless with hardware support
+  - Combines XOR, addition modulo $2^{32}$ and rotation operations over 20 rounds to produce 512 bits of keystream
+  - 256b key
+- TLS 1.3 main improvements
+  - Efficiency
+    - Saving 1 RTT in handshake
+    - Can set up follow-on session with 0-RTT
+  - Security
+    - Only forward-secret key exchange now allowed
+    - Many legacy cipher suites no longer allowed
+    - Renegotiation option removed
+    - Formal security proofs
+- Selfie attacks on 1.3
+  - Breaks mutual auth in PSK mode
+  - Alice shared PSK with Bob
+  - Attacker reflects message back to herself so Alice thinks she is talking to Bob while actually talking with server Alice
+  - Case not covered in analysis of TLS 1.3
+  - Can be prevented by forbidding to share PSK between 1 or more server and one client
+
+## IPsec
+
+- Introduction
+  - Provides protection for any higher protocol layer
+  - Uses encryption, authentication and key management algorithms
+  - Most commonly used in VPNs
+  - Provides security architecture for both IPv4 and IPv6
+- Security services
+  - Message confidentiality
+  - Message integrity
+  - Limited traffic analysis protection: eavesdropper on network traffic should not know which parties communicate, how often, or how much data is sent
+  - Message replay protection: same data not replayed and data not delivered badly out of order
+  - Peer authentication: each IPsec endoint confirms identity of other IPsec endpoint
+- IPsec architectures
+  - Gateway-to-gateway
+    - Provides secure network communication between 2 networks
+    - Network traffic router through IPsec connection, protecting it appropriately
+    - Only protects data between 2 gateways
+    - Most often used when connecting 2 secured networks
+    - Can be less costly than private WAN circuits
+  - Host-to-gateway
+    - Commonly used to provide secure remote access
+    - Organizations deploys VPN gateway onto their network
+    - Each remote access user establishes VPN connection between local computer and gateway
+    - VPN gateway may be dedicated device or part of another network device
+    - Most often used when connecting hosts on unsecured networks to resources on secured networks
+  - Host-to-host
+    - Typically for special purpose needs, like system administrators performing remote management of single server
+    - Only model that provides protection for data end-to-end
+    - Resource-intensive to implement and maintain in terms of user and host management
+    - All user systems and servers that will participate in VPNs need to have VPN software installed and/or configured
+    - Key management often accomplished through manual process
+- IPsec protocol types
+  - *Encapsulating Security Payload (ESP)*: can provide confidentiality, auth, integrity and replay prot
+  - *Authentication Header (AH)*: auth, integrity and replay prot, no confidentiality. Now deprecated
+  - *Internet Key Exchange (IKE)*: negotiate, create, manage session keys in so-called *security associations*
+- Setting up IPsec connection
+  - Key exchange uses IKEv2 protocol
+  - IKEv2 uses DH authed using signatures with public keys
+  - Includes *cookies* to mitigate DoS attacks
+    - Client must return time-dependent cookie value before server proceeds
+    - Provide *proof of reachability* before any expensive crypotgraphic processing is completed
+- Security associations
+  - Security association (SA) contains info needed by IPsec endpoint to support IPsec connection
+  - Can include cryptographic keys and algs, key lifetimes, security paramter index (SPI) and security identifier (ESP or AH)
+  - SPI included in IPsec header to associate packet with appropriate SA
+  - SA tells endpoint how to process inbound IPsec packets or how to generate outbound packets
+  - SAs needed for each direction of connection
+  - IKEv2 used to establish keys to use in SAs
+- Cryptographic suites
+  - Similar to TLS ciphersuites
+  - Specific group available for DH, both finite field and elliptic curves
+  - 3DES and AES used for encryption, either in CBC or GCM
+  - HMAC or CMAC (variant) used for integrity if GCM mode not used
+- IPsec modes of operation
+  - Each protocol (ESP or AH) can operate in transport or tunnel mode
+  - *Transport mode*: maintains IP header of original packet and protects payload - generally only used in host-host
+  - *Tunnel mode*: original packet encapsulated in new one, payload is original packet - typical use in gateway-gateway
+- IPsec protocol components
+  - ESP header
+    - Contains security parameter index (SPI) identifying SA and sequence numbers
+  - ESP trailer
+    - Contains padding and padding length
+    - May also include extra padding to enhance traffic flow confidentiality
+  - ESP auth
+    - Contains MAC of of encrypted data and ESP header
+    - May not be required if authed encryption mode is used
+- Transport mode ESP
+  - Original IP packet = IP header || Data
+  - IP packet protected by transport-ESP = IP header || ESP header (authed) || Data (authed, encrypted) || ESP trailer (authed, encrypted) || ESP auth
+  - Outbound packet processing
+    - Data after original IP header padded by adding ESP trailer and result encrypted using symmetric cipher and key in SA
+    - ESP header prepended
+    - If SA uses auth service, ESP MAC is calculated over data prepared so far and appended
+    - Original IP header prepended, some field in original IP header must be edited
+      - Protocl field from TCP to ESP
+      - Total length changed to account for addition of ESP header
+      - Checksums recalculated
+- Tunnel mode ESP
+  - Original IP packet = IP header || Data
+  - IP packet protected by tunnel-ESP = New IP header || ESP header (authed) || IP header (authed, encrypted) || Data (authed, encryped) || ESP trailer (authed, encrypted) || ESp auth
+  - Outbound packet processing
+    - Entire packet padded by adding ESP trailer and result encrypted using symmetric cipher agreed in SA
+    - ESP header prepended
+    - If SA uses authed service, ESP MAC is calculated over data prepended so far and append
+    - New outer IP header prepended
+      - Inner IP header carries ultimate source and destination
+      - Outer IP header may contain distinct IP addresses like addresses of security gateways
+      - Outer IP header protocol field is set to ESP
+- IPsec security
+  - Active attacks demonstrated for encryption-only mode of ESP protocol
+  - Now widely understood that providing encryption without auth is insecure
+  - 2005 version does not require implementations to support encryption-only mode, but still allows it
+  - ESP applies encryption before MAC in normal usage
+  - Using AH, MAC can be applied before encryption, like in TLS
+    - Attacks demonstrated on such configurations
+  - Formal analysis shows IPsec key exchange protocol (IKEv2) has no significant weaknesses
+
+## Email security and secure messaging
+
+- Email one of the most widely used communication methods
+- Often sent without end-end security
+- Instant messaging increasingly popular, built on good security
+- Both have very different security properties
+- Email security requirements
+  - Message User Agent (MUA) connects client to mail system
+  - Uses SMTP to send mail to message submission agent (MSA) and POP or IMAP to retrieve mail from message store (MS)
+  - Message Handling System (MHS) transfers message from MSA to MS via one or more Message Transfer Agent (MTA)
+  - Today common to use webmail, which still uses SMTP and POP/IMAP
+  - ![alt text](image-30.png)
+  - Security threats against email
+    - We consider threats under CIA model
+    - Email content may lack confidentiality or authentication
+    - Availability of email service might be threatened
+    - Metadata in header information significant source of attacker information
+  - Spam
+    - Unsolicited (bulk) email
+    - Common vector for phishing attacks
+    - Countermeasures typically use email filtering
+    - Spearphishing harder to filter
+  - Link security and end-end security
+    - See slides for difference
+    - Security may be provided between agents in mail system in link-link basis by using e.g. STARTTLS and DKIM
+    - Alternatively provided from client to client (end-end) using PGP and S/MIME
+    - Both have advantages and disadvantages - ideally use both
+- Link security
+  - STARTTLS
+    - Extention to mail protocols SMTP, POP and IMAP to run over TCP connections
+    - Provides link-link security, not end-end
+    - Opportunistic use of TLS security - use if possible
+    - Vulnerable to STRIPTLS attacks
+      - Attacker interrupts TLS negotiation
+      - Connection falls back to plaintext transmission
+  - DomainKeys Identified Mail (DKIM)
+    - Allows sending mail domain to sign outgoing mail use RSA signatures (currently supported signature alg)
+    - Receiving domain can verify origin of mail
+    - Helps prevent email spoofing and reduces spam and phishing
+    - Public verification key of sending domain retrieved using DNS
+    - See slides for example DKIM signature
+    - DKIM public keys
+      - Relevant public key in DNS record for host defined by host name:
+      [selector]._domainkey.[domain]
+      - Example header = "nslookup -type=txt default._domainkey.easychair.org"
+- End-to-end security
+  - Widely reported export restriction and controversy
+  - Email processing
+    - Protection of email message content
+    - Hybrid encryption
+      - Random 'session key' generated for each object (message)
+      - Session key encrypted with long-term public key of recipient
+    - Signing using RSA or DSA signatures
+    - Compression using ZIP
+    - Coding use base-64 to ensure binary strings can be sent in email body
+  - PGP encryption
+    - Session keys encrypted using asymmetric encryption
+    - OpenPGP requires support for ElGamal encryption and recommends supporting RSA encryption
+    - Encryption of message text using symmetric key encryption
+      - OpenPGP requires support for 3DES with 3 keys, and recommends AES-128 and CAST5 and more
+    - Compression before encryption
+    - Encryption can be applied independently of signing (no requirement for authed encryption)
+  - PGP signatures
+    - Plaintext messages originally signed with sender's private key
+    - OpenPGP requires support for RSA signatures
+    - DSA signatures also defined
+    - RSA signed message hashed with SHA1 or other SHA2 hashes
+  - OpenPGP PKI
+    - Used in PGP email security
+    - Includes ID, public key, validity period and self-signature
+    - No CAs, keys can be signed for anyone
+    - Various key servers used to store keys
+    - Often known as web of trust
+    - ![alt text](image-31.png)
+  - Usability
+    - Can we expect user to understand PK crypto?
+    - Possible to design PGP interface helping user to operate PGP correctly and safely?
+    - Newer PGP versions still hard to use
+    - Typical problems
+      - Generating new keys securely
+      - Moving keys between devices
+      - Renewing keys upon expiration
+  - Take-up of PGP
+    - Plugins available for many popular mail clients and webmail interfaces
+    - Some mail services provide compatibility but manage private key for you
+    - Key server launched in 2019
+  - Criticism of OpenPGP
+    - Outdated cryptoalgs still used
+      - SHA1, CAST, ...
+    - No support for SHA3 or authed encryption like GCM
+    - A lot of metadata available to eavesdropper
+      - File length
+      - Encryption algorithm used
+      - Key ID of recipients
+    - No forward secrecy
+    - Not support streaming mode or random access encryption
+  - S/MIME
+    - Many similar features as PGP but different format of messages and not interoperable
+    - Natively supported by many mail clients
+- Secure messaging
+  - Difference between messaging and email
+    - Messages part of interactive conversation extending over many messages
+    - Proprietary servers typically used to manage accounts
+  - Standard CIA security service
+  - Forward secrecy important, especially for long sessions
+    - Achieved using *medium-term* public keys stored in server
+  - Desirable to also have *post-compromise security* (self-healing)
+    - Attack who obtains long-term key should be locked out after communication resumes
+  - Standards
+    - No standardized messaging protocol
+    - Different apps security in different ways
+  - Signal protocol
+    - Signal server sets up initial auth of user and registers initial public keys
+    - Public keys at server used to set up initial communication between users
+    - Key exchange uses elliptic curve DH
+    - AES in CBC mode with HMAC (SHA256) user for message protection
+  - Ratcheting
+    - Ratchet = device which is easy to move forward but blocked from oving backwards
+    - Signal uses new unique message key for every message exchanged, known as *continuous key exchange*
+    - When successive messages sent in same direction, message key is updated with *symmetric ratchet* by applting function such as HMAC
+    - When new message is returned in opposite direction, new DH ephemeral key used to compute new message
+      - This is *Diffie-Hellman ratchet*
+  - Group messaging
+    - No good alternative for DH known for multi-party case
+    - Signal uses simple key distribution method for group messaging

@@ -753,7 +753,7 @@
   - Both MAC and IP set to all 1s
   - Example ARP
     - All 1s is also broadcast MAC address
-  - For network-wide broadcast leyer-3 mechanism needed
+  - For network-wide broadcast layer-3 mechanism needed
   - Source duplication
     - Replicated unicast
     - Separate copy of packet sent to each destination
@@ -809,7 +809,7 @@
         - Shortest spanning tree vs minimum cost tree
           - SS: shortest path from source to each individual receiver
           - MC: lowest total cost
-          - These are graph theory concepts, and are correlated to shared- and spurce-specific trees
+          - These are graph theory concepts, and are correlated to shared- and source-specific trees
   - Elements in multicast routing architecture
     - How to discover sources and receivers
     - Building/maintaining distribution trees between source and receivers
@@ -838,7 +838,7 @@
       - Packet sent to multicast group always has unicast source address
         - Source can never be multicast address
   - Source and receivers in multicast groups
-    - Multicast ddress used for group of receivers
+    - Multicast address used for group of receivers
       - Independent of receivers unicast address
       - Identifies channel/content, not destination
     - Source and receiver have home router supporting multicast
@@ -847,7 +847,6 @@
       - *(s, M)*: source-specific tree
   - IGMP for group membership
     - Between hosts and their home multicast router
-    - IGMP snooping to avoid unnecessary traffic load
     - IGMP header
       - 1B type
         - Host membership query
@@ -902,10 +901,10 @@
       - Use flood-and-prune reverse path forwarding
         - Shortest-tree path
         - No topology discovery
-      - Branches without multicast group members are pruned
-        - Routers send *prune message*
-          - Remove router from tree of multicast group
-          - Recursive from routers with no group members
+        - Branches without multicast group members are pruned
+          - Routers send *prune message*
+            - Remove router from tree of multicast group
+            - Recursive from routers with no group members
       - When most routers have multicast group members
         - PIM-DM based on flood-and-prune using message sent over IP
           - *Hello*: detect PIM routers on same subnetwork
@@ -942,7 +941,7 @@
           - Each candidate RP declares its existance to selected *BootStrap Router (BSR)* using unicast routing
           - BSR announces candidate RPs periodically using flooding
         - Auto RP
-          - Candidate RP announces itself to mappign agent in mcast group 224.0.1.39
+          - Candidate RP announces itself to mapping agent in mcast group 224.0.1.39
           - Mapping agent broker selects and announces RP in specific mcast group 224.0.1.40
           - Dense mode or preconfigured
         - Address embedded-RP
@@ -957,7 +956,7 @@
           - DR in source-side network sends register message towards RP
       - Receiver join creates multicast tree
         - Receiver home router sends unicast join towards RP
-        - Forwarded using unicast router until arrives at router already belonging to spenning tree or at RP
+        - Forwarded using unicast router until arrives at router already belonging to spanning tree or at RP
         - Paths of the tree-join message defines branches of spanning-tree from RP
         - PIM control messages sent over IP
           - Protocol field 103
@@ -1002,11 +1001,121 @@
     - Recompouted on LS change
     - Routers forward packet if on shortest path to multicast source
   - Three roles for ABR in inter-area trees
-    -*Multicast forwarding function*: forward group membership info (LSA 6 per group) to backbone and multicast datagrams between areas
+    - *Multicast forwarding function*: forward group membership info (LSA 6 per group) to backbone and multicast datagrams between areas
     - *Wild-card multicast receiver* for all multicast groups
     - *Proxy home router* for multicast datagrams between areas
 - Intra- and interdomain multicast
   - When intra-domain mcast routing used within a domain, network operator configures IP mcast routers within domain
   - Multicast extentions to BGP allows it to carry routing information for other protocols, including multicast information
 - See last slide for summary
-  
+
+## Link layer
+
+- Not as organized as network layer
+- Switch is representative device/function
+- Forwarding, error detection/correction (EDC), multiple access
+- Overview
+  - Link layer directly connects host, switches, routers and transfers packet from one node to adjacent node
+  - Point-point vs multiple access
+    - Point-point: Point-to-Point Protocol (PPP)
+  - Wired vs wireless
+  - Link layer frames transmitted over physical medium
+  - Link layer assembles bits to frames and brings frames one hop towards destination
+  - Link sometimes layer adds both header and trailer
+- Link layer services
+  - Depend on specific link layer network technology
+  - Framing
+    - Encapsulae datagram into frame, adding header/trailer
+  - Linc access
+    - Channes of shared medium
+    - Medium Access Control (MAC) addresses in frame headers
+      - Careful: SDN uses different src/dst addresses compared to traditional routers/switches
+    - Switches hsve MAC address tables
+      - Maps dst MAC addresses on incoming frames to output ports
+  - Half- or full-duplex
+    - Half-duplex: nodes at both ends of link can transmit, but not at same time
+  - Error detection
+    - Receiver detexts errors
+    - Signals sender or drops frame
+  - Error correction
+    - Receiver identifies bit errors and corrects without needing to retransmit
+  - Reliable delivery
+  - Flow control
+- Switches and routers are store-and-forward devices
+  - Hub
+    - Multi-port bit repeater
+    - Incoming bit out on all other ports at same rate
+    - No frame buffering
+    - Host adapters detect collisions
+  - Switch
+    - Layer 2 interconnection
+    - Bridge = two-port switch
+    - Maintain switch tables, implement filtering learning algorithms
+    - Broadcast domain: layer-2 interconnected LAN segments
+    - Research difference broadcast domain and collision domain
+  - Router
+    - Layer 3 interconnection
+    - IP address
+    - Maintain routing tables, implement routing algs
+    - Broadcast domain: subnet
+- Forwarding
+  - Self-learning, forwarding by flooding or selective send
+  - Switch learning which hosts can be reached through which interfaces
+    - (MAC address of host, interface to reach host, time stamp)
+    - Time stamp to keep switch table relatively small (unlike routers)
+    - Look at where incoming packet came from, and which host transmitted it
+  - When frame received, switch records sender/location in switch table
+  - Frame destination unknown: flood
+  - Frame destination known: selective send to one link
+- Switches used extiensively in data centers and IXPs
+- Virtual LANs (VLAN) over single physical infrastructure
+  - Users can move office and still be on departments LAN
+  - Lan in single broadcast domain
+    - All layer-2 broadcast traffic (ARP, DHCP, unknown location of destination MAC address) must cross entire LAN
+    - Efficiency, security/privacy issues
+- Error detection
+  - Error = unintended bit flips
+  - Wireless channel = more errors
+  - Redundancy bits
+    - Error Detection and Correction bits (EDC)
+  - If error detected in receiver, typically ask for retransmission
+    - TCP does this when received in destination
+    - Better to have switch check for each hop
+  - Parity bits
+    - Single-bit parity
+    - Add single bit to ensure the amount of 1's in frame is even
+    - Issue: even number of errors will not be detected
+    - Only tells something is wrong 50% of the time
+    - Not used in practice
+  - 2D bit parity
+    - Detects and corrects single bit errors
+    - Will often detect, rarely correct
+       1010|0 $\newline$
+       1010|0 $\newline$
+       1010|0 $\newline$
+       1011|1 $\newline$
+       -------+- $\newline$
+       0001|1 $\newline$
+  - Internet checksum
+    - Used by IP, UDP, TCP to detect errors
+    - Divide into 16b integers
+    - Add together, using 1's complement sum
+      - Overflow added to sum
+    - Then invert all bits
+      - I think invert after adding together all 16b integers
+    - Can not be corrected
+    - Receiver recomputes checksum and compares with transmitted sum
+  - Forward error correction = can correct error without requiring retransmission
+  - Cyclic Redundancy Check (CRC)
+    - More complex, more robust
+    - View data, *D* as binary numbers
+    - Choose Generator $G = r+1$ bits
+      - First and last bit = 1
+      - Standardized values for *G*, for both 16 and 32 bits
+      - CRC-1 equals even parity
+    - Choose *R* (*r* bits) and append to *D* such that
+      - *<D, R>* should be exactly divisible by *G*
+      - Means $R$ = remainder of $\frac{D\cdot 2^r}{G}$
+      - See slides on how to do binary division by hand
+    - Receiver has the same value of *G* as sender
+    - Receiver calculates $\frac{<D, R>}{G}$, which should be 0
