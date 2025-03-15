@@ -1025,8 +1025,8 @@
 - Link layer services
   - Depend on specific link layer network technology
   - Framing
-    - Encapsulae datagram into frame, adding header/trailer
-  - Linc access
+    - Encapsulate datagram into frame, adding header/trailer
+  - Line access
     - Channes of shared medium
     - Medium Access Control (MAC) addresses in frame headers
       - Careful: SDN uses different src/dst addresses compared to traditional routers/switches
@@ -1050,6 +1050,9 @@
   - Switch
     - Layer 2 interconnection
     - Bridge = two-port switch
+      - No longer manifactured
+      - Can separate 2 different collision domains
+      - Can conseptually exists, connecting a vitrual port to a physical port
     - Maintain switch tables, implement filtering learning algorithms
     - Broadcast domain: layer-2 interconnected LAN segments
     - Research difference broadcast domain and collision domain
@@ -1058,6 +1061,8 @@
     - IP address
     - Maintain routing tables, implement routing algs
     - Broadcast domain: subnet
+  - Broadcast domain = domain where broadcast is possible (I think)
+  - Collision domain = domain where collision is possible (multiple devices on same interface of switch)
 - Forwarding
   - Self-learning, forwarding by flooding or selective send
   - Switch learning which hosts can be reached through which interfaces
@@ -1119,3 +1124,119 @@
       - See slides on how to do binary division by hand
     - Receiver has the same value of *G* as sender
     - Receiver calculates $\frac{<D, R>}{G}$, which should be 0
+- Shared mediums
+  - Especially in wireless networks
+  - Multiple receivers share same medium
+  - Problem: collisions
+    - No one receives any data due to multiple people sending at same time
+  - 3 multiple access protol classes
+    1. Channel partitioning
+       - Divide channel into pieces
+         - Frequency division multiplexing
+           - Divide frequency band into pieces, where each device has its own frequency band
+           - Reduces efficiency per device
+         - Time division multiplexing
+           - Users get whole frequency band for a period of time
+           - Reduces efficiency due to devices having to wait for their turn
+         - Code division multiplexing
+    2. Random access
+       - Channel not divided
+       - "Recover "from collisions
+       - ALOHA, slotted ALOHA
+       - Carrier sensing
+         - Easy in wired, hard in wireless
+       - Used in ethernet
+    3. Taking turns
+       - Nodes with more to send take longer turns
+       - Polling from central cite
+       - Token passing
+         - IBM token ring
+    - Cable access network
+      - All-in-one
+      - EuroDOCSIS
+      - Channel partitioning in upstream/downstream
+        - Different between downstream and upstream
+      - Multiple downstream one ot many channels
+      - Multiple upstream to one receiver
+        - Random access
+          - Mini slot requests frames for upstream data slots
+        - Taking turns: Centrally assigned ...
+    - Performance for each MAC protocol class
+      - Channel
+        - Efficient sharing for high loads
+        - Inefficient for low loads
+      - Random
+        - Collision overhead for high loads
+        - Efficient for low load
+      - Taking turns
+        - See slides
+- LAN segmentation
+  - Loops in LAN topologies can cause:
+    - Multicast and broadcast storms
+    - Unicast frame duplication
+      - Same frame duplicated in two different devices
+      - Destination receives multiple copies of same frame
+    - Flopping of MAC addresses between switch ports
+      - MAC flap = switch receives frames with same source MAC addressed to 2 different interfaces
+      - Switch can interpret device being on the wrong LAN due to loop
+      - Switch not sure where device is located
+      - See slides for visualization
+- Spanning Tree Protocol (STP)
+  - Fix issues with loops in LAN networks
+  - Spanning tree topology
+    - Resembles shared trees
+    - Switches
+      - One switch acts as root (Root bridge)
+      - Nodes are designated bridges (DB) (bridge is switch)
+      - Last switches are Leaf Bridge
+    - Ports
+      - Root port
+      - Designated port
+        - Ports closest to root bridge on ANY switch!
+      - Blocked port
+        - Block loops
+        - See slides for illustration
+        - Choose blocking based on link cost optimization
+    - Link cost inversely based on bandwidth
+    - Determined by:
+      - Bridge priority (configured)
+      - Root bridge
+        - Spanning-tree root
+        - Root eelected at network power-up
+      - Bridges path cost to spanning tree root
+      - Port identifier associated with each interface in tree
+        - Port priority represents location of interface in network topology and how well it is located to pass traffic
+        - Port number
+  - Only one path from leaf to root
+    - Eliminates all loop problems
+    - Only ports to other switches are blocked!
+    - Ports to hosts are always up!
+  - Transparent to end systems
+  - Creating a spanning tree
+    - Elect RB
+      - Lowest bridge ID = bridge priority + MAC address
+    - For each switch determine root port
+      - Lowest path cost to root
+    - En each segment determine DP
+      - Forward all traffic away from root
+      - All ports of RP are DBs
+      - Port on segment with lower root path cost
+        - Lower bridge ID: lower port ID
+    - Elect designated bridge for all segments not connected to RB
+      - Lower cost to root: lower bridge ID
+    - Determine BP to prevent loops
+      - Any remaining ports are blocked
+    - Switches exchange Bridge Protocol Data Units (BPDU) to:
+      - Learn about each other
+      - Create spanning tree
+      - See slides
+- Data center networking
+  - 10s to 100s of hosts
+  - Rich interconnection between switches/racks
+  - Switches ethernet Gb networks
+  - Layer 2 multipathing
+    - Increased reliability
+    - Increased throughput between racks
+    - Load balancing
+  - Fat tree topology
+  - See slides for more info
