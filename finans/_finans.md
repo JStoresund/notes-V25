@@ -838,7 +838,7 @@ $
 
 ### 8. Pricing Kernel
 
-- The pricing kernel$m$adjusts real probabilities to risk- neutral probabilities:
+- The pricing kernel $m$ adjusts real probabilities to risk- neutral probabilities:
 
 $
 \psi_i = p_i m_i
@@ -848,7 +848,7 @@ Where:
 
 - $\psi_i$= State price.
 - $p_i$= Real probability.
-- $m_i$= Marginal utility in state$i$.
+- $m_i$= Marginal utility in state $i$.
 
 ### 9. No- Arbitrage Conditions
 

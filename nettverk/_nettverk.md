@@ -1129,7 +1129,7 @@
   - Multiple receivers share same medium
   - Problem: collisions
     - No one receives any data due to multiple people sending at same time
-  - 3 multiple access protol classes
+  - 3 multiple access protocol classes
     1. Channel partitioning
        - Divide channel into pieces
          - Frequency division multiplexing
@@ -1159,8 +1159,8 @@
       - Multiple downstream one ot many channels
       - Multiple upstream to one receiver
         - Random access
-          - Mini slot requests frames for upstream data slots
-        - Taking turns: Centrally assigned ...
+          - Mini-slot requests frames for upstream data slots
+        - Taking turns: Centrally assigned mini-slots for upstream data
     - Performance for each MAC protocol class
       - Channel
         - Efficient sharing for high loads
@@ -1169,14 +1169,14 @@
         - Collision overhead for high loads
         - Efficient for low load
       - Taking turns
-        - See slides
+        - looking for best of both worlds
 - LAN segmentation
   - Loops in LAN topologies can cause:
     - Multicast and broadcast storms
     - Unicast frame duplication
       - Same frame duplicated in two different devices
       - Destination receives multiple copies of same frame
-    - Flopping of MAC addresses between switch ports
+    - Flapping of MAC addresses between switch ports
       - MAC flap = switch receives frames with same source MAC addressed to 2 different interfaces
       - Switch can interpret device being on the wrong LAN due to loop
       - Switch not sure where device is located
@@ -1217,7 +1217,7 @@
       - Lowest bridge ID = bridge priority + MAC address
     - For each switch determine root port
       - Lowest path cost to root
-    - En each segment determine DP
+    - On each segment determine DP
       - Forward all traffic away from root
       - All ports of RP are DBs
       - Port on segment with lower root path cost
@@ -1238,5 +1238,195 @@
     - Increased reliability
     - Increased throughput between racks
     - Load balancing
-  - Fat tree topology
-  - See slides for more info
+  - Data centers
+    - 10s to 100s of hosts
+    - Rich interconnection between racks
+    - Serve as massive-parallel computing infrastructures
+    - Provide cloud computing
+  - Data center networks
+    - Challenges
+      - Multiple applications
+      - Managing/balancing load
+    - Rich interconnection
+      - Increased throughput between racks
+      - Increased reliability vs redundancy
+    - Load balancing
+      - Redirecting workload within data center
+    - Traditionally fat tree topology
+  - Large switches networks
+    - Increased reliability vs redundancy
+    - Should only be one way between any 2 switches
+  - Data center networking needs
+    - Virtualization
+      - Cost reduction
+      - Scalability
+      - Data mobility
+    - Rapid network changes and predictable network recovery
+      - Centralized CDN to program and manage thousands of switching chips in data center network
+    - Multitenancy
+      - Separate and insulate client's traffic
+        - VLANs and VMs
+  - Dividing physical infrastructure into VLANs
+    - VLAN = virtual LAN over single physical LAN infrastructure
+    - Port-based VLAN
+      - Switch ports grouped
+      - Operates as multiple virtual switches
+      - Traffic isolation
+        - Frames from/to ports 1-8 can only reach ports 1-8
+        - VLAN based on port switch
+        - VLAN based on MAC addresses of endpoints
+      - Dynamic membership
+        - Ports dynamically assigned among VLANs
+      - Forwarding between VLANs
+        - Done via bridging/routing
+        - In pracice vendors sell combined switch/router
+    - Trunk ports
+      - Connect VLANs spanning multiple devices
+      - VLAN ID used to forward accross switches inside VLAN
+        - VLAN ID = 12b
+        - 3-bit priority field
+        - 1 bit drop eligible indicator
+  - Leaf-spine topology architecture
+    - As opposed to traditional 3-layer topology
+      - Access, aggregation, core layer
+    - Leaf and spine switches
+      - Full mesh between leaf and spine switches
+    - Increase connectivity
+      - Full mesh between layer
+      - Increase reliability
+    - Increases throughput
+      - Link speed
+      - Multipathing
+        - From spanning tree to equal cost multi path
+
+## Wireless LAN
+
+- 802.11 (Wifi)
+  - Version 6 newest
+  - CSMA/CA (Carrier Sense Multiple Access/Collision Avoidance)
+    - Ethernet uses collision detection
+  - Wireless more challenging that wired
+    - Signals spread as it propagates away from antenna
+      - Range depends on frequency and power
+    - Radio antenna concentrate and directs signal
+      - Antenna's power gain affects connection range
+      - WiFi antennas usually omnidirectional
+  - WLAN
+    - Within building < 30m
+  - Mobile broadband
+    - 10s of km
+  - Radio signals carried within electromagnetic spectrum
+    - Bidirectional
+    - Obstructed by objects (reflection, interference)
+    - WLAN, terrestrial p2p, wide-area (e.g. 5G), satellite
+    - Some frequencies more valuable than others
+      - Different wavelengths have different atmospheric opacities
+        - Radio spectrum best observable from earth (satellites to space)
+        - Frequency allocations used to determine who can use which frequency bands
+      - WiFi 2.5GHz
+- Wireless networks
+  - Base station
+    - Typically connected to wired network
+    - Relay between wireless hosts and wired networks
+  - Wireless hosts
+    - Laptop, phone, etc.
+    - May be stationary or mobile
+  - Wireless link
+    - Connect mobile to base station, but also as backbone link
+    - Multiple access protocol coordinates link access
+    - Various data rates, transmission distances
+  - Infrastructure mode
+    - Base station present
+    - Handoff: mobile changes base station providing connection into wired network
+  - Ad-hoc mode
+    - No base station
+    - Nodes can only transmit to other nodes within link coverage
+    - Nodes organize themselves into network: route among themselves
+  - Taxonomy
+    - Single hop/multiple hops
+    - Infrastructure/no infrastructure
+    - See slide for table (copy to cheat sheet)
+- Wireless channels
+  - More susceptible to errors
+  - Decreased signal strength over distance
+    - Higher frequency fades faster
+  - Interference between signals
+    - Signal phase has effect on amplitude when receiving multiple signals
+      - Standardized wireless network fequencies shared by other devices
+  - Multipath propagation
+    - Radio signals reflect off objects, arriving at destination at different times (interference)
+  - Physical layer adapts to channel conditions
+    - Signal-Noise Ratio (SNR) inversely correlated to error rate
+      - Larger amplitude = larger SNR
+      - Higher bandwidth = larger BER (in general)
+    - Analog channel converts between digital bit and signal
+      - Amplitude, Frequency and Phase modulation used to differ between 0 and 1
+        - Multiple modulations can be used at the same time for more bandwidth
+    - Time domain
+      - Analog signal vs digial signal
+      - Periodic signal vs aperiodic signal
+    - Frequency domain
+      - Higher data rate = greater required frq bandwidth
+      - Fourier analysis
+- WiFi
+  - Base station and ad-hoc
+    - Base station = Access Point (AP)
+    - AP sends beacon frames
+  - Basic Service Set (BSS) in infrastructure mode contains
+    - Wireless hosts
+    - AP
+    - Ad hoc mode (hosts only)
+  - Hosts associate with an AP
+    - May perform auth
+    - Typically, DHCP to get IP address in AP's subnet
+    - Passive scanning
+      - Beacon frames sent from AP with its SSID and MAC addr
+      - Association Request frame from host to selected AP
+      - Association Response frame from selected AP to host
+    - Active scanning
+      - Probe request frame broadcast from host
+      - Probe response frame sent from APs
+      - Association Req + Res same as for passive scanning
+  - Access points and channels
+    - Frequency for AP chosen by AP or admin
+    - Spectrum divided into channels
+    - Interference possible: channel can be same as chosen by neighbor
+    - 802.11b channels non-overlapping if separated by 4 or more channels
+  - WiFi supports mobility within same subnet
+    - If host remains in same subnet: can keep IP
+    - Self-learning switch will see frame from host and remember which port can be used to reach H1
+    - If host moves to another AP, host sends message to keep switch updated
+  - CSMA/CA
+    - CSMA = don't collide with ongoing transmission by other node
+    - CA
+      - May be difficult to sense collisions when transmitting due to weak received signals: *fading*
+      - Can't sense all collision: *hidden terminal*
+  - Random access 802.11 MAC protocol
+    - Sender
+      - If sense channel idle for period (DIFS): transmit frame
+      - If sense channel busy
+        - Start random back-off time
+        - Timer counts down while channel idle
+        - Transmit when timer expires
+        - If no ACK from receiver: collision -> increase random back-off interval
+        - Repeat transmission
+      - Exponential backoff when
+        - Station senses medium is busy before transmission of first packet
+        - After each retransmission
+        - After successful transmission
+    - Small reservation packets used to avoid data frame collisions
+      - Sender "reserves" channel rather than random access of data frames to avoid collisions of long data frames
+      - Sender first sends Request To Send (RTS) using CSMA to AP
+        - Only if data frame is sufficiently large (no point if data frame is small)
+        - RTS may collide, but they are short
+      - AP broadcasts Clear-To-Send (CTS) in response to RTS request
+      - Sender transmits data, others defer transmissions
+      - Short Inter-Frame Spacing (SIFS) between signals
+  - 802.11 frame
+    - Ethernet: 2 address fields (src, dst)
+    - WiFi: 4 address fields (we only use 3)
+      - Address 1: destination MAC (wireless host or AP)
+      - Address 2: source MAC
+      - Address 3: MAC addr of router interface to which AP is connected
+      - Address 4: Only in ad hoc mode (irrelevant for us)
+    - See slides for more info (put on cheat sheet)
