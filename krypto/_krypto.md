@@ -37,7 +37,7 @@
   - *Availability service*: protects against DoS
 - Security mechanism
   - Method for implementing one or more security services
-  - Encipherment (same as encyption I think)
+  - Encipherment (same as encryption I think)
   - Digital signature mechanisms
     - Transform data using signing key
   - OSI standard X.800 describes access control mechanisms and data integrity mechanisms
@@ -124,7 +124,7 @@
       - Compute distinct prime factors of $p-1$, $f_1, f_2, \dots$
       - $g$ is generator as long as $g^{(p-1)/f_i}\neq 1 (\mod p)$ for $i=1,2,\dots$
   - Group of composite modulus, $\Z_n ^*$
-    - For any $n$, we define $\>_n^*$ to be group of residues which have inverse under multiplication
+    - For any $n$, we define $\Z_n^*$ to be group of residues which have inverse under multiplication
     - Not cyclic in general
     - Finding order is difficult
 
@@ -168,16 +168,16 @@
 ## Classical encryption
 
 - Terminology
-  - *Cryptography*: study of designing cryptosystems
+  - *Cryptography*: Study of designing cryptosystems
   - *Cryptoanalysis*: Study of breaking cryptosystems
 - Confidentiality and authentication
   - For confidentiality a key is needed to read the message
-  - For authenticatino a key is needed to write the message
+  - For authentication a key is needed to write the message
 - Cryptosystems consists of the following:
   - Set of plaintexts
   - Set of ciphertexts
   - Set of keys
-  - Function which transforms plaintext into ciphertext (encyption)
+  - Function which transforms plaintext into ciphertext (encryption)
   - Function which transforms ciphertext into plaintext (decryption)
 - Symmetric key encryption
   - Encryption and decryption key only known to sender and receiver
@@ -228,7 +228,7 @@
 - Real-world attacker needs to work out the alphabet
 - Statistics for English
   - Statistics for the distribution of characters in English plaintext
-  - Can be of both single-characeter, double-characters and truple-characters
+  - Can be of both single-characeter, double-characters and triple-characters
 - Basic cipher operations
   - Most ciphers based on a combination of two basic operations
   - *Transposition*: Mixing up characters in plaintext
@@ -244,14 +244,14 @@
     - Might optimise trials with knowledge of digram and trigram frequencies
     - Processes can be automated
 - Simple substitution ciphers
-  - Each character in aplhabet replaced by another character
+  - Each character in alphabet replaced by another character
   - Also called monoalphabetic substitution ciphers
   - Exampe Caesar cipher and random simple substitution cipher
 
 ### Caesar cipher
 
 - Key: integer $j$
-- For each letter with value $i$ in the alphabet, replace it with $(i+j)\mod n$, where $n$ is size of aplhabet
+- For each letter with value $i$ in the alphabet, replace it with $(i+j)\mod n$, where $n$ is size of alphabet
 - Cryptoanalysis
   - Only need to find where one of the most frequent characters are shifted to
 
@@ -268,7 +268,7 @@
 
 - Use multiple mappings from plaintext to ciphertext
 - Makes it so that frequency analysis is no longer effective
-- Given $d$ ciphertext alphabets $C_0, \dots, C_{d-1}$, let $f_i: A\rightarrow C_i$ be mapping from plaintext alphabet $A$ to $i$th ciphertext alphabet $C_i(0\leq i\leq d-1$
+- Given $d$ ciphertext alphabets $C_0, \dots, C_{d-1}$, let $f_i: A\rightarrow C_i$ be mapping from plaintext alphabet $A$ to $i$th ciphertext alphabet $C_i(0\leq i\leq d-1)$
 - Encryption process
   - Plaintext message $M=m_0m_1\dots m_{d-1}m_d\dots m_{2d-1}\dots$
   is enciphered to $E(K,M)=f_0(m_0)f_1(m_1)\dots f_{d-1}(m_{d-1})f_0(m_d)\dots$
@@ -437,7 +437,7 @@
 ### Product cipher
 
 - Cryptosystem in which encryption function is formed by applying or composing several sub-encryption functions
-- E.g. we define multiple functions $f_1, f_2, \dots F_r$, that have keys $K_1, K_2, \dots K_r$
+- E.g. we define multiple functions $f_1, f_2, \dots f_r$, that have keys $K_1, K_2, \dots K_r$
 - $C = E(P, K) = f_r(f_{r-1}(\dots f_2(f_1(P, K_1), K_2)\dots K_{r-1}), K_r)$
 
 ### Iterated ciphers
@@ -487,7 +487,7 @@
 ### Substitution-Permutation Networks (SPNs)
 
 - Iterated network cipher
-- Block length $n$ must allow each block to be split into $m$ sub-blocks of length $l$ such that $n=l\cdot m$
+- Block length $n$ must allow each block to be split into $m$ sub-blocks of length $l$ ($n=l\cdot m$)
 - 2 permutations defined
   - $\pi_S$ operates on sub-blocks of size $l$ bits:
     $\newline \pi_S: \{0,1\}' \rightarrow \{0,1\}'\newline$
@@ -528,8 +528,8 @@
 - 16-round feistel cipher with key length = 56 bits, data block length = 64 bits
 - Encryption
   - $P$: 64-bit input block
-  - 64 bits of $P$ er permuted accordingly to an initially fixed permutation, denoted $IP$
-  - 16 rounds of feistel operation applied, denoed by funcion $f$. Different 48-bit subkey used for each round
+  - 64 bits of $P$ are permuted accordingly to an initially fixed permutation, denoted $IP$
+  - 16 rounds of feistel operation applied, denoted by function $f$. Different 48-bit subkey used for each round
   - Final fixed inverse permutation, $IP^{-1}$ applied after 16 rounds, and result is ciphertext $C$
 - DES feistel operation
   - Expand 32 bits to 48 bits
@@ -625,7 +625,7 @@
 
 - Motivation
   - Block ciphers encrypt single blocks of data separately, which is generally insecure
-  - Modes of operation standardized iwth different security and efficiency
+  - Modes of operation standardized with different security and efficiency
   - Block ciphers can be used to generate random numbers
 
 ### Modes
@@ -648,7 +648,7 @@
     - Sometimes multiple ciphertexts can be decrypted in parallel
   - Some modes result in error propagation, where bit error in ciphertext results in multiple bit errors in decrypted plaintext
 - Padding
-  - Some modes require plaintext to consist og one or more complete blocks
+  - Some modes require plaintext to consist of one or more complete blocks
   - Padding mechanism to "fill up" a block (NIST)
     - Append single bit '1' to data string (regardless of whether the message was already complete)
     - Pad resulting string by '0' to complete the block
@@ -820,7 +820,7 @@
     - DDoS mitigation
   - Used by more than 20\% of the internet
 - How to generate randomness
-  - CryptographicallySecure PseudoRandom Number Generators (CSPRNGs) are algs which produce larger stream of unpredictable data from smaller unpredictable input
+  - Cryptographically Secure PseudoRandom Number Generators (CSPRNGs) are algs which produce larger stream of unpredictable data from smaller unpredictable input
   - Need unpredictable input
 - Lavarand (fun alternate RNG generator)
 
@@ -835,7 +835,7 @@
   - Collision resistant: Should be infeasible to find $x_1$ and $x_2$ such that $H(x_1) = H(x_2)$
   - One-way: Should be impossible to find $x$ such that $H(x) = y$ given $y$
   - Second-preimage resistant: Given value $x_1$, it should be infeasible to find $x_2$ such that $H(x_1) = H(x_2)$
-    - Breaking second-preimage restistance implies breaking collision resistance
+    - Breaking second-preimage resistance implies breaking collision resistance
 - Remember birthday paradox
   - In general, if we choose around $\sqrt{M}$ values from a set of size $M$, the probability of getting two of the same value is around 0.5
   - Suppose hash function has output size $k$ bits, and $H$ is regarded as random, $2^{k/2}$ trials are enough to find collision
@@ -846,7 +846,7 @@
   - Compression function $h$
     - Takes 2 input strings $x_1, x_2$ and outputs string $y$ of length $n$ bits
   - ![alt text](image-11.png)
-  - If conpression function $h$ is collision-resistant, then hash function $H$ is collision resistant
+  - If compression function $h$ is collision-resistant, then hash function $H$ is collision resistant
   - Security weakness
     - Length-extension attack: once one collision is found, it is easy to find more
     - Second-preimage not as hard as it should be
@@ -861,7 +861,7 @@
     - SHA = Secura Hash Algorithm
     - Both have 160 bit output
     - SHA-0 broken
-    - Sha-1 fisrt collision found in 2017
+    - Sha-1 first collision found in 2017
   - SHA-2 family
     - Several members
     - Developed in response to attack on MD5 and SHA-1
@@ -894,7 +894,7 @@
     - Key is **not** kept secret. Need collision resistance even when adversary knows $s$
       - Hence $H^s$, and not $H_s$
   - Storing passwords for login
-    - Usual to store passwords on servers using hash functions
+    - Normal to store passwords on servers using hash functions
     - Store salted hashes of passwords, using random $salt$, computing $h = H(pw, salt)$, store $(salt, h)$
 
 ### Message authentication codes (MACs)
@@ -930,7 +930,7 @@
     - $opad$: fixed string $0x5c5c\dots 5c$
     - $ipad$: fixed string $0x3636\dots 36$
   - Security of HMAC
-    - Secure (unforgeable) is $H$ is collision resistant or if $H$ is pseudorandom function
+    - Secure (unforgeable) if $H$ is collision resistant or if $H$ is pseudorandom function
     - Designed to resist length extention attacks (even if $H$ is Merkle-Damgård hash function)
     - HMAC often used as pseudorandom function for deriving keys in cryptographic protocols
 
@@ -1014,7 +1014,7 @@
 ## Number theory for public key cryptography
 
 - Need efficient way to generate large prime numbers
-- Also need hard copmutational problems
+- Also need hard computational problems
 
 ### Chinese remainder theorem (CRT)
 
@@ -1035,7 +1035,7 @@
   - $\phi(n)$ gives size of $\Z_n^*$
 - If $n$ is prime, $\phi(n) = n-1$
 - $\phi(pq) = (p-1)(q-1)$ if $p$ and $q$ are distinct primes
-- If $n=p_1^{k_1}\cdot p_2^{k_2}\cdot ... \cdot p_t^{k_t}, \phi(n) = \Pi_{i=1}^t p_i^{k_i-1}(p_i-1)$
+- If $n=p_1^{k_1}\cdot p_2^{k_2}\cdot ... \cdot p_t^{k_t}, \phi(n) = \Pi_{i=1}^t (p_i^{k_i}-p_i^{k_i-1})$
 - Two theorems
   - Fermat
     - If $p$ is prime, $a^{p-1}\mod p = 1$, given $a<p-1$
@@ -1046,7 +1046,7 @@
 ### Testing for primality
 
 - Testing by division is not practical for larger numbers
-- A number of fast method are probabilistic
+- A number of fast mepthod are probabilistic
   - Require random input and fail in extraordinary cases
 - Deterministic primality test found in 2002
   - Still probabilistic methods used in practice
@@ -1059,7 +1059,7 @@
     - Output: $\text{composite}$ if $n$ is composite, otherwise $\text{probably prime}$
     - Repeat $k$ times:
       1. Pick random $a<n-1$
-      2. If $a^{n-1}\mod n\neq 1$, return $\text{composite}$
+      2. If $a^{n-1}\mod n \neq 1$, return $\text{composite}$
       3. return $\text{probable prime}$
   - Effectiveness
     - If it returns $\text{composite}$, $n$ is 100\% composite
@@ -1164,7 +1164,7 @@
 - Hybrid encryption
   - PKC is computationally much more expensive than symmetric-key cryptography
   - Normal to encrypt random key for symmetric algorithm and then use symmetric
-  1. $B$ chooses random encryption key $k$ and finds $A$'s public key $PK_A$ and computes $C_1=E(k,PK_A)
+  1. $B$ chooses random encryption key $k$ and finds $A$'s public key $PK_A$ and computes $C_1=E(k,PK_A)$
   2. $B$ computes $C_2 = E_S(M, k)$ where $E_S$ is symmetric algorithm like AES in CTR mode
   3. $B$ sends $(C_1, C_2)$ to $A$
 
@@ -1197,7 +1197,7 @@
 - Selecting $e$
   - Efficient with small value, i.e. 3, but that is bad when encrypting small messages
   - Pupular to choose $e = 2^{16}+1$
-- As a note, $d$ should at least be $\sqrt(n)$
+- As a note, $d$ should at least be $\sqrt{n}$
   - Can be brute-forced if $d$ is too small
 - Fast exponentiation
   - Basic idea is *square and multiply*
@@ -1210,7 +1210,7 @@
 - Faster decryption with CRT
   - Compute $M_p = C^{d\mod p-1}\mod p$ and $M_q = C^{d\mod q-1}\mod q$
   - Solve for $M\mod n$ using CRT
-  - $M = q\cdot (q^{-1}\mod p)\cdot M_p + p\cdot (p^{-1}\mod q)\cdot M_q\mod n$
+  - $M = [q\cdot (q^{-1}\mod p)\cdot M_p + p\cdot (p^{-1}\mod q)\cdot M_q]\mod n$
   - Why does this work?
     - Check slides
   - How much faster is it?
@@ -1230,14 +1230,14 @@
     - Optimal Asymmetric Encryption Padding (OAEP)
       - Includes $k_0$ bits of randomness and $k_1$ bits of redundancy into message before encryption
       - Reasonable values for $k_0$ and $k_1$ are 128
-      - 2 random hash function $G$ and $H$ used
+      - 2 random hash functions $G$ and $H$ used
       - ![alt text](image-17.png)
 - Security of RSA
   - If adversary can factorize $n$ they can easily find private key $d$ and reveal all messages
   - Breaking RSA not harder than factorization
   - Not possible to find private key without factorizing modulus
   - Miller theorem
-    - Determining $d$ from $e and n$ is as hard as factorizing $n$
+    - Determining $d$ from $e$ and $n$ is as hard as factorizing $n$
   - Miller's algorithm
     - Determine $u, v$ such that $ed-1=2^vu, u$ is odd
     - Consider sequence $a^u, a^{2u}, a^{3u}, \dots, a^{2^vu}(\mod n)$
@@ -1269,7 +1269,7 @@
 - Main alternative to RSA
 - Often more efficient than RSA when implemented on elliptic curves
 - Diffie-Hellman key exchange
-  - Public knowledge: Generetor $g$ of multiplicative group $G$ of order $t$
+  - Public knowledge: Generator $g$ of multiplicative group $G$ of order $t$
   - Alice and Bob randomly select values $0<a, b<t$
   - Alice sends $g^a$ to Bob
   - Bob sends $g^b$ to Alice
@@ -1291,7 +1291,7 @@
     - In static DH, Alice chooses long-term private key $x_A$ which corresponds to key $y_A = g^{x_A}$
     - Alice and Bob can find shared secret $S = g^{x_Ax_B}$
     - $S$ is static: stays the same long term until Alice or Bob changes their key
-- Elgamar cryptosystem
+- Elgamal cryptosystem
   - Turns DH into cryptosystem
   - Here, we look at original version where $G=Z_p^*$
   - Alice combines her public ephemeral private key with Bob's long-term public key
@@ -1310,7 +1310,7 @@
     - Private key is $K_D=x$
     - $C = (C_1, C_2)$
     - Compute $C_1^x\mod p$
-    - $D(C, K_D) = C_2\cdot (C_i^x)^{-1}\mod p = M$
+    - $D(C, K_D) = C_2\cdot (C_1^x)^{-1}\mod p = M$
   - Why does this work?
     - Sender knows ephemeral private key $k$ and long-term public key $y$
     - Receiver knows static private key $x$ and ephemeral public key $g^k \mod p$
@@ -1333,14 +1333,14 @@
   - for sufficiently large $p$, problem is intractable
 - Using discrete log
   - Ciphers using discrete log depends on preperty that $a^{p-1}\equiv_p 1$ for all nonzero elements in $\Z_p$
-  - If possible to compute discete logs in $G$, decision DH does not hold
+  - If possible to compute discrete logs in $G$, decision DH does not hold
   - Solving discrete log problem over $\Z_p$ is comparable to difficulty of factoring product of two primes
     - Discrete log algs give same level of security as RSA
 - Elliptic curves
-  - Aglebraic structures formed from cubic equations
+  - Algebraic structures formed from cubic equations
   - Example is set of all pairs $(x,y)$ that satisfies $y^2 = x^3+ax+b\mod p$
     - This example is over field $\Z_p$ but elliptic fields can be defined over any field
-  - Once identity element is added, bonary operations can be defined on this point
+  - Once identity element is added, binary operations can be defined on this point
   - With this operation elliptic curve points form *elliptic curve group*
   - Normal to identify a curve as $E_p(a, b)$
     - See slides for example
@@ -1348,7 +1348,7 @@
     - Elliptic curve group could be denoted by any symbol, but by convention it is usually called elliptic curve *addition*
     - $P+Q=R$ shows group operation on curve points $P$ and $Q$ with result $R$
     - *Elliptic curve discrete log problem* finds value of $m$, given point $P$ and generator $G$ so that $P=mG$
-    - Efficient computation of alliptic curve multiplication can use *double-and-add algorithm*, by replacing multiplication in the square and multiply algorithm with addition
+    - Efficient computation of elliptic curve multiplication can use *double-and-add algorithm*, by replacing multiplication in the square and multiply algorithm with addition
   - Elliptic curve representations
     - Short Weistrass
     - Montgomery
@@ -1461,7 +1461,7 @@
       - Select random $0<k<p-1$ and compute $r = g^k\mod p$
       - Compute $s = k^{-1}(m-xr)\mod (p-1)$ ($m$ is message that is to be signed)
       - Signature is $(r, s)$ pair
-    - Signature verificaiion
+    - Signature verification
       - Verify that $g^m\equiv y^rr^s\mod p$
   - Schnorr signature scheme in $\Z_p^*$
     - Let $p$ be large prime, $g$ generator in $Z_p^*$
@@ -1471,7 +1471,7 @@
     - Signature generation
       - Select random $0<k<p-1$ and compute $r = g^k\mod p$
       - Let $e = H(r||m)$
-      - Compute $s=k-xe\mod (p-1)!
+      - Compute $s=k-xe\mod (p-1)$
       - Signature is $(s, e)$ pair
     - Signature verification
       - Let $R_v = g^sy^e$
@@ -1488,7 +1488,7 @@
         - $(L = 2048, N = 256)$
         - $(L = 3072, N = 256)$
       - $g = h^{\frac{p-1}{q}}\mod p, 1<h<p-1$
-      - $H$, sha family variant which outputs $N-bit$ digest$
+      - $H$, sha family variant which outputs $N$-bit digest
     - Key generation
       - Do this once at the start
       - Choose random signing key $0<x<q$
@@ -1530,7 +1530,7 @@
       3. Set $r=x$, but return to step 2 if $r=0$
       4. Set $s=k^{-1}(e+rd)\mod n$
       5. Signature $\sigma = (r,s)$
-      - $r$ is x-coordinate og elliptic point, while $s$ is an integer modulo $n$
+      - $r$ is x-coordinate of elliptic point, while $s$ is an integer modulo $n$
     - Signature verification
       - Check that $0<r<n$ and $0<s<n$
       - Compute $w=s^{-1}\mod n$ and $e=H(m)$
@@ -1544,7 +1544,7 @@
         - Recommended when good RNG is not available
       - EdDSA signatures
         - Uses Edwin curve 25519
-        - Deterministic version og Schnorr signatures
+        - Deterministic version of Schnorr signatures
     - ECDSA vs DSA
       - DSA has clever design, meaning signatures using ECDSA generally don't have shorter signatures
       - ECDSA signature size varies with curve used. For approved curves this can vary from 448 bits to 1024 bits
@@ -1658,7 +1658,7 @@
     - Key agreement protocol provides *(perfect) forward secrecy* if compromise of long-term private keys does not reveal session keys previously agreed using those long-term keys
     - Remember attacker can see and record protocol messages
 - Post-compromise security (PCS)
-  - Sometimes possible to recover after long-term key is compromised (*self-healing procols*)
+  - Sometimes possible to recover after long-term key is compromised (*self-healing protocols*)
   - Only works when attacker is passive
   - Long-term key must evolve over time so attacker becomes locked out with long-term key updates
   - Can be achieved by sending new Diffie-Hellman share with every message and change session key after every message
@@ -1673,7 +1673,7 @@
       - More secure, but still single point of failure
     - Public-key authority
       - Central authority maintains dynamic directory
-      - Still drawbacks, e.g. users must appeal authority for every user it wants to contact, causign bottleneck
+      - Still drawbacks, e.g. users must appeal authority for every user it wants to contact, causing bottleneck
     - Public-key certificates
       - Used in practice
       - Certificate is public key, identifier of key owner, all of which is signed by trusted 3rd party
@@ -1741,8 +1741,8 @@
 
 - Options are as follows:
   - Alice picks key, physically delivers to Bob
-    - Need to meet phyisically
-  - Third party selects key and phyiscally delivers to Bob
+    - Need to meet physically
+  - Third party selects key and physically delivers to Bob
     - Need to meet physically
   - Alice and Bob have previously shared key which can be used to update key
     - If attacker gains access to key at eny point, they can get access to all subsequent messages
@@ -1751,10 +1751,10 @@
   - Notation
     - Parties/principals: $A, B, S$ ($A$ and $B$ want to establish session key, $S$ is trusted authority)
     - Shared secret keys: $K_{AS}, K_{BS}, K_{AB}$
-      - $K_{AS} and $K_{BS}$ are long-term keys, while $K_{AS}$ is session key
+      - $K_{AS}$ and $K_{BS}$ are long-term keys, while $K_{AS}$ is session key
     - Nonces $N_A, N_B$
     - $S$ sends message $M$ to $A$
-    - $\{X\}_A$ is authenticated encryption of message $X$ using shared secret key $K$
+    - $\{X\}_K$ is authenticated encryption of message $X$ using shared secret key $K$
   - ![alt text](image-20.png)
   - One of the most widely known key establishment protocols
   - Basis for several protocols
@@ -1786,9 +1786,9 @@
   - Provide access selectively for a number of different online services using individual tickets
   - Establish session key to deliver confidentiality and integrity services
   - 3-level protocol
-    - Level 1: Client *C* interacts with authenticatino server *AS* in order to obtain ticket-grantin ticket. Happends once per session
+    - Level 1: Client *C* interacts with authentication server *AS* in order to obtain ticket to ticket-granting server. Happens once per session
     - Level 2: Client *C* interacts with ticket-granting server *TGS* to obtain service ticket. Happens once for each server during session
-    - Level 3: Client *C* interacts with application server *V* in order to obtain a service. Happens each time client requeres service during session
+    - Level 3: Client *C* interacts with application server *V* in order to obtain a service. Happens each time client requires service during session
   - Level 1: interaction with auth server
     - ![alt text](image-23.png)
     - $ticket_{tgs} = \{K_{C, tgs}, ID_C, T_1\}_{K_{tgs}}$ for some period $T_1$
@@ -1807,7 +1807,7 @@
     - $N_2$ is nonce used by *C* to check that $K_{C,V}$ is fresh
     - *TGS* first obtains $K_{C, tgs}$ from $ticket_{tgs}$ and checks that fields in authenticator ar valid (includes checking $TS_1$ and that *C* is authed to access machine *V*)
     - In practice *AS* and *TGS* may be same machine
-  - Level 3: interaciton with application server
+  - Level 3: interaction with application server
     - ![alt text](image-25.png)
     - $authenticator_V = \{ID_C, TS_2\}_{K_{C-V}}$ for some timestamp $TS_2$
     - Result: client has secure access to specific server *V*
@@ -1858,7 +1858,7 @@
   - TLS record
     - Provides 2 services for higher-level protocols
       - Message confidentiality
-      - Messge integrity
+      - Message integrity
       - Can be provided by symmetric encryption algorithm and MAC
       - From TLS 1.2, provided with authed encryption with associated data, modes CCM or GCM
     - Handshake protocol establishes symmetric keys (session keys) to use with these mechanisms
@@ -1886,7 +1886,7 @@
         - HMAC in all TLS versions using negotiated hash function
         - SHA-2 allowed only from TLS 1.2
       - Encryption
-        - Either negotiated block cipher in CBC mode or strema cipher
+        - Either negotiated block cipher in CBC mode or stream cipher
         - Most common blocks are AES and 3DES
         - RC4 originally supported in TLS 1.2
         - Block ciphers: padding applied after MAC to make multiple of cipher block size
@@ -1918,7 +1918,7 @@
       - Client sends certificate and key exchange message
     - Phase 4
       - Client and server start secure communication
-      - Finished messages includes check value (pseudo-random function) of all previus messages
+      - Finished messages includes check value (pseudo-random function) of all previous messages
     - RSA-based handshake protocol
       - Simplest variation with server-only auth and public server key for RSA encryption
       - RSA-based key exchange selected in phase 1
@@ -1928,7 +1928,7 @@
       - *Server key exchange*: Server's input to key exchange
       - *Client key exchange*: Client's input to key exchange
       - *Change-cipher-spec*: Switch to newly negotiated ciphersuite for record layer
-    - Ephermeral Diffie-Hellman handshake protocol
+    - Ephemeral Diffie-Hellman handshake protocol
       - Server key exchange: DH generator and group parameters and serve ephemeral DH value, all signed by server
       - Client key exchange: Client ephemeral DH value, optionally signed by client if client certificate is used
       - Pre-master secret *pms* is shared DH secret
@@ -2021,7 +2021,7 @@
             - Sender first applies MAC to plaintext
             - Then adds up to 255B padding to get message to multiple of cipher block size
             - Then CBC-encrypt record
-            - Padding id **not** protected by MAC
+            - Padding is **not** protected by MAC
           - Attacker can flip certain bits in ciphertext to tamper with padding, leading to padding oracle attack
           - If attacker learns whether the changes affects the padding, they can use the information to adaptively decrypt the whole record
         - These types of attacks were known to TLS designers
@@ -2030,7 +2030,7 @@
           - Time how long decryption took, deduce whether there was padding error
           - Implementations would first check padding, then return immediately if this failed
         - TLS 1.2: if pad appears to be incorrect, implementation might assume zero-length pad and compute MAC
-        - When padding fails, decyptor does not know much padding to strip off
+        - When padding fails, decryptor does not know much padding to strip off
         - Meaning it does not know how much data to MAC
         - Recommended countermeasure is to assume no padding, then MAC the whole blob
           - MAC computations can take longer when padding is damaged
@@ -2085,9 +2085,9 @@
       - Server accepts one of the ciphersuites
       - Client heyshare matches accepted ciphersuite
     - If above conditions fail:
-      - Server sends optional Helo Rerty Request
+      - Server sends optional Hello Retry Request
       - Client responds if there is acceptable alternative ciphersuite
-    - Usually this reuults in saving a whole round trip of communication
+    - Usually this results in saving a whole round trip of communication
   - Other messages
     - One client and server hello/keyshare messages are not cryptographically protected
     - All later communication uses handshake traffic keys
@@ -2103,7 +2103,7 @@
     - Includes signature which can be verified using public key in the certificate
   - 1.3 adds *post-handshake client authentication* extention
     - If used server may request client auth at any time after handshake completed
-    - Client responds with and signature in the form of "CertificateVerify"
+    - Client responds with certificate and signature in the form of "CertificateVerify"
 - 0-RTT in TLS 1.3
   - Parties can start sending application data immediately (early data)
   - Based on pre-shared key (PSK)
@@ -2225,7 +2225,7 @@
       - Checksums recalculated
 - Tunnel mode ESP
   - Original IP packet = IP header || Data
-  - IP packet protected by tunnel-ESP = New IP header || ESP header (authed) || IP header (authed, encrypted) || Data (authed, encryped) || ESP trailer (authed, encrypted) || ESp auth
+  - IP packet protected by tunnel-ESP = New IP header || ESP header (authed) || IP header (authed, encrypted) || Data (authed, encrypted) || ESP trailer (authed, encrypted) || ESP auth
   - Outbound packet processing
     - Entire packet padded by adding ESP trailer and result encrypted using symmetric cipher agreed in SA
     - ESP header prepended
@@ -2360,9 +2360,9 @@
     - Key exchange uses elliptic curve DH
     - AES in CBC mode with HMAC (SHA256) user for message protection
   - Ratcheting
-    - Ratchet = device which is easy to move forward but blocked from oving backwards
+    - Ratchet = device which is easy to move forward but blocked from moving backwards
     - Signal uses new unique message key for every message exchanged, known as *continuous key exchange*
-    - When successive messages sent in same direction, message key is updated with *symmetric ratchet* by applting function such as HMAC
+    - When successive messages sent in same direction, message key is updated with *symmetric ratchet* by applying function such as HMAC
     - When new message is returned in opposite direction, new DH ephemeral key used to compute new message
       - This is *Diffie-Hellman ratchet*
   - Group messaging

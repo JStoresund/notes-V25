@@ -269,7 +269,7 @@
   - Route summarization reduces size of routing table
   - Many ways to view cost in a link
     - Length
-    - Bandwisth
+    - Bandwidth
     - Delay
     - Packet loss
     - More
@@ -349,7 +349,7 @@
       - Summary links for IP in other areas
       - External links that describe external IP networks
   - Area border routers (ABR)
-    - Interface in two or mrore areas of which one is area 0
+    - Interface in two or more areas of which one is area 0
     - OSPF process per area
     - Virtual links
     - Topology information
@@ -560,7 +560,7 @@
   - Can be number of routers (not switches)
   - Can also be numbers of Autonomous Systems (shortest AS-path)
     - Not interesting how many routers are in each AS
-  - Preferable to have this smallest number of hops
+    - Preferable to have this smallest number of hops
 - Multi-homing
   - Tier 3 network connected to multiple tier 2 ISPs
   - Failover-protection in case one tier-2 router fails
@@ -666,9 +666,10 @@
     - Counters: flow statistics
     - Action performed: drop, forward, modify matched packet and send to controller
     - Computed, installed, updated by remote controller
-    - Defins router's general forwarding math+action rules
+    - Defines router's general forwarding match+action rules
   - In-band signalling
-    - Do research
+    - Control plane traffic mixed with data plane traffic
+    - Control plane traffic is forwarded through the data plane
   - Out-of-band signalling
     - Control plane traffic separated from data plane traffic
 - Software-defined WAN (SD-WAN)
@@ -709,10 +710,10 @@
     - GetBulkRequest: same as above
     - SetRequest: manager-to-agent - set MIB value
     - Response: agent-to-manager - value, response to request
-    - Trap: agent-to-manager: inform about exceptional event
+    - Trap: agent-to-manager - inform about exceptional event
   - Challenges
     - Simple protocol, leaving hard work to developers
-    - SET requests sent independently. Might cause seriour error if multiple set requests sent at once to one device, and one fails
+    - SET requests sent independently. Might cause serious error if multiple set requests sent at once to one device, and one fails
     - SNMP does not include mechanism to undo recent changes in device config
     - SNMP does not provide sync among multiple devices. If manager sends SET request to group of devices, it is possible only some arrive
     - SNMP does not employ standard security mechanisms. Security is self-contained within the protocol, making credentials and key management complex and difficult to integrate with existing credential and key management systems
@@ -868,7 +869,7 @@
       - Router sends IGMP query to ask hosts if they want to join multicast group
       - Hosts can later back out of group
     - IGMP snooping to avoid unnecessary traffic load
-      - *IGMP snooping*: switch prunes multicast traffic
+      - *IGMP snooping*: switch prunes multicast traffic (by reading IP dest address field)
       - Prevent hosts on local network from receiving traffic from multicast group they have not explicitly joined
       - See slides
   - Multicast MAC addresses
@@ -922,7 +923,7 @@
         - No redundant data packets
         - Router memory and bandwidth savings compared to source-based trees
       - Shared tree
-        - Source register at a defined *rendezvous point (RP)*
+        - Source register at a defined *Rendezvous Point (RP)*
         - *(\*, M)* same root for all mcast group members
       - When more than 1 router on same subnet
         - Elects *designated router* and backup to forward PIM messages towards RP
@@ -1035,7 +1036,7 @@
   - Half- or full-duplex
     - Half-duplex: nodes at both ends of link can transmit, but not at same time
   - Error detection
-    - Receiver detexts errors
+    - Receiver detects errors
     - Signals sender or drops frame
   - Error correction
     - Receiver identifies bit errors and corrects without needing to retransmit
@@ -1072,7 +1073,7 @@
   - When frame received, switch records sender/location in switch table
   - Frame destination unknown: flood
   - Frame destination known: selective send to one link
-- Switches used extiensively in data centers and IXPs
+- Switches used extensively in data centers and IXPs
 - Virtual LANs (VLAN) over single physical infrastructure
   - Users can move office and still be on departments LAN
   - Lan in single broadcast domain
